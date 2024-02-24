@@ -1,0 +1,8 @@
+{
+  "name": "miro",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/miro/src",
+  "projectType": "application",
+  "targets": {},
+  "tags": []
+}
