@@ -24,6 +24,11 @@ export default defineConfig({
   //  plugins: [ nxViteTsPaths() ],
   // },
 
+  resolve: {
+    alias: {
+      '@contexts': 'apps/miro/src/app/contexts/index.ts',
+    },
+  },
   build: {
     outDir: '../../dist/apps/miro',
     reportCompressedSize: true,
