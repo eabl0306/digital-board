@@ -8,6 +8,7 @@
     "strict": true,
     "types": ["vite/client", "vitest"],
     "paths": {
+      "@front-monorepo/board": ["../../libs/board/src/index.ts"],
       "@front-monorepo/types": ["../../libs/types/src/index.ts"],
       "@contexts": ["src/app/contexts/index.ts"]
     }

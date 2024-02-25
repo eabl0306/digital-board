@@ -17,14 +17,14 @@ export class Board {
   protected _thumbnail: string | null;
   protected _title: string;
   protected _description: string;
-  protected _elements: Elements[] = [];
+  protected _children: Elements[] = [];
 
   constructor(title: string, description: string) {
     this._id = uuid();
     this._thumbnail = null;
     this._title = title;
     this._description = description;
-    this._elements = [];
+    this._children = [];
   }
 
   set id(id: string) {
@@ -59,19 +59,26 @@ export class Board {
     return this._description;
   }
 
-  set elements(elements: Elements[]) {
-    this._elements = elements;
+  set children(elements: Elements[]) {
+    this._children = elements;
   }
 
-  get elements(): Elements[] {
-    return this._elements;
+  get children(): Elements[] {
+    return this._children;
+  }
+
+  removeChild(child: Elements) {
+    const index = this._children.indexOf(child);
+    if (index !== -1) {
+      this._children.splice(index, 1);
+    }
   }
 
   static from(board: Board) {
     const b = new Board(board.title, board.description);
     b.id = board.id;
     b.thumbnail = board.thumbnail;
-    b.elements = board.elements.map((e) => {
+    b.children = board.children.map((e) => {
       switch (e.type) {
         case ElementType.RECTANGLE:
           return Rectangle.from(e as Rectangle);
@@ -87,7 +94,7 @@ export class Board {
     const b = new Board(json.title, json.description);
     b.id = json.id;
     b.thumbnail = json.thumbnail;
-    b.elements = json.elements.map((e) => {
+    b.children = json.elements.map((e) => {
       switch (e.type) {
         case ElementType.RECTANGLE:
           return Rectangle.fromJSON(e as Rectangle);
@@ -105,7 +112,7 @@ export class Board {
       thumbnail: this._thumbnail,
       title: this._title,
       description: this._description,
-      elements: this._elements.map((e) => e.toJSON()),
+      elements: this._children.map((e) => e.toJSON()),
     };
   }
 }
