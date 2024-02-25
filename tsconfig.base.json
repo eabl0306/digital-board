@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@front-monorepo/board": ["libs/board/src/index.ts"],
       "@front-monorepo/types": ["libs/types/src/index.ts"]
     }
   },
