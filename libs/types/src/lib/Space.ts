@@ -1,6 +1,6 @@
 import { Board } from './Board';
 
-export interface Space {
+export interface ISpace {
   id: string;
   title: string;
   boards: Pick<Board, 'title' | 'thumbnail'>[];

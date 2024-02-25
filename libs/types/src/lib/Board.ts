@@ -1,8 +1,16 @@
 import { v4 as uuid } from 'uuid';
-import { Element } from './Element';
+import { Element, ElementType, IElement } from './Element';
 import { Rectangle } from './Rectangle';
 
 export type Elements = Element | Rectangle;
+
+export interface IBoard {
+  id: string;
+  thumbnail: string | null;
+  title: string;
+  description: string;
+  elements: IElement[];
+}
 
 export class Board {
   protected _id: string;
@@ -64,34 +72,34 @@ export class Board {
     b.id = board.id;
     b.thumbnail = board.thumbnail;
     b.elements = board.elements.map((e) => {
-      if (e instanceof Rectangle) {
-        return Rectangle.from(e);
+      switch (e.type) {
+        case ElementType.RECTANGLE:
+          return Rectangle.from(e as Rectangle);
+        case ElementType.EMPTY:
+          return Element.from(e as Element);
       }
-
-      return Element.from(e);
     });
 
     return b;
   }
 
-  static fromJSON(
-    json: Pick<Board, 'id' | 'thumbnail' | 'title' | 'description' | 'elements'>
-  ) {
+  static fromJSON(json: IBoard) {
     const b = new Board(json.title, json.description);
     b.id = json.id;
     b.thumbnail = json.thumbnail;
     b.elements = json.elements.map((e) => {
-      if (e instanceof Rectangle) {
-        return Rectangle.fromJSON(e);
+      switch (e.type) {
+        case ElementType.RECTANGLE:
+          return Rectangle.fromJSON(e as Rectangle);
+        case ElementType.EMPTY:
+          return Element.fromJSON(e as Element);
       }
-
-      return Element.fromJSON(e);
     });
 
     return b;
   }
 
-  toJSON(): Record<string, unknown> {
+  toJSON(): IBoard {
     return {
       id: this._id,
       thumbnail: this._thumbnail,

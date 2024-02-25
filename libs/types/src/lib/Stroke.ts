@@ -1,9 +1,26 @@
+export interface IStroke {
+  color: string;
+  opacity: number;
+  width: number;
+}
+
 export class Stroke {
-  protected _color: string = '#ffffff';
-  protected _opacity: number = 1;
-  protected _width: number = 1;
+  protected _color: string;
+  protected _opacity: number;
+  protected _width: number;
+
+  constructor() {
+    this._color = '#ffffff';
+    this._opacity = 1;
+    this._width = 1;
+  }
 
   set color(color: string) {
+    // Ensure the color is a valid hex color
+    if (!/^#[0-9A-F]{6}$/i.test(color)) {
+      throw new Error('Invalid color');
+    }
+
     this._color = color;
   }
 
@@ -12,6 +29,7 @@ export class Stroke {
   }
 
   set opacity(opacity: number) {
+    // Ensure the opacity is between 0 and 1
     this._opacity = Math.max(Math.min(opacity, 1), 0);
   }
 
@@ -20,6 +38,7 @@ export class Stroke {
   }
 
   set width(width: number) {
+    // Ensure the width is not negative
     this._width = Math.max(width, 0);
   }
 
@@ -37,15 +56,7 @@ export class Stroke {
     return s;
   }
 
-  static fromJSON({
-    color,
-    opacity,
-    width,
-  }: {
-    color: string;
-    opacity: number;
-    width: number;
-  }) {
+  static fromJSON({ color, opacity, width }: IStroke) {
     const s = new Stroke();
 
     s.color = color;
@@ -55,7 +66,7 @@ export class Stroke {
     return s;
   }
 
-  toJSON() {
+  toJSON(): IStroke {
     return {
       color: this.color,
       opacity: this.opacity,

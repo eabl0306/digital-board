@@ -1,3 +1,8 @@
+export interface ISize {
+  width: number;
+  height: number;
+}
+
 export class Size {
   protected _width: number;
   protected _height: number;
@@ -31,11 +36,11 @@ export class Size {
     return new Size(width, height);
   }
 
-  static fromJSON({ width, height }: { width: number; height: number }) {
+  static fromJSON({ width, height }: ISize) {
     return new Size(width, height);
   }
 
-  toJSON() {
+  toJSON(): ISize {
     return { width: this.width, height: this.height };
   }
 }

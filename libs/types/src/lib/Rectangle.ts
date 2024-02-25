@@ -1,8 +1,15 @@
-import { Element, ElementType } from './Element';
-import { Fill } from './Fill';
-import { Stroke } from './Stroke';
-import { Size } from './Size';
+import { Element, ElementType, IElement } from './Element';
+import { Fill, IFill } from './Fill';
+import { IStroke, Stroke } from './Stroke';
+import { ISize, Size } from './Size';
 import { Transform } from './Transform';
+
+export interface IRectangle extends IElement {
+  fill: IFill;
+  stroke: IStroke;
+  size: ISize;
+  radius: number;
+}
 
 export class Rectangle extends Element {
   public override readonly type: ElementType = ElementType.RECTANGLE;
@@ -10,13 +17,14 @@ export class Rectangle extends Element {
   protected _fill: Fill;
   protected _stroke: Stroke;
   protected _size: Size;
-  protected _radius: number = 0;
+  protected _radius: number;
 
-  constructor(size: Size) {
+  constructor() {
     super();
     this._fill = new Fill();
     this._stroke = new Stroke();
-    this._size = size;
+    this._size = new Size(100, 100);
+    this._radius = 0;
   }
 
   set fill(fill: Fill) {
@@ -44,6 +52,7 @@ export class Rectangle extends Element {
   }
 
   set radius(radius: number) {
+    // Ensure the radius is not negative
     this._radius = Math.max(radius, 0);
   }
 
@@ -52,12 +61,13 @@ export class Rectangle extends Element {
   }
 
   static override from(rectangle: Rectangle) {
-    const r = new Rectangle(Size.from(rectangle.size));
+    const r = new Rectangle();
 
     r._id = rectangle.id;
     r._transform = Transform.from(rectangle.transform);
     r.fill = Fill.from(rectangle.fill);
     r.stroke = Stroke.from(rectangle.stroke);
+    r.size = Size.from(rectangle.size);
     r.radius = rectangle.radius;
 
     return r;
@@ -70,24 +80,23 @@ export class Rectangle extends Element {
     stroke,
     size,
     radius,
-  }: Pick<
-    Rectangle,
-    'id' | 'transform' | 'fill' | 'stroke' | 'size' | 'radius'
-  >) {
-    const r = new Rectangle(Size.fromJSON(size));
+  }: IRectangle) {
+    const r = new Rectangle();
 
     r._id = id;
     r._transform = Transform.fromJSON(transform);
     r.fill = Fill.fromJSON(fill);
     r.stroke = Stroke.fromJSON(stroke);
+    r.size = Size.fromJSON(size);
     r.radius = radius;
 
     return r;
   }
 
-  override toJSON(): Record<string, unknown> {
+  override toJSON(): IRectangle {
     return {
       ...super.toJSON(),
+      type: this.type,
       fill: this.fill.toJSON(),
       stroke: this.stroke.toJSON(),
       size: this.size.toJSON(),

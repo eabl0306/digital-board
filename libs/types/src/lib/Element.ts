@@ -1,13 +1,20 @@
 import { v4 as uuid } from 'uuid';
-import { Transform } from './Transform';
+import { ITransform, Transform } from './Transform';
 
 export enum ElementType {
   EMPTY = 'EMPTY',
   RECTANGLE = 'RECTANGLE',
 }
 
+export interface IElement {
+  type: ElementType;
+  id: string;
+  transform: ITransform;
+}
+
 export class Element {
   public readonly type: ElementType = ElementType.EMPTY;
+
   protected _id: string;
   protected _transform: Transform;
 
@@ -26,13 +33,14 @@ export class Element {
 
   static from(empty: Element) {
     const e = new Element();
+
     e._id = empty.id;
     e._transform = Transform.from(empty.transform);
 
     return e;
   }
 
-  static fromJSON(json: { id: string; transform: Transform }) {
+  static fromJSON(json: Omit<IElement, 'type'>) {
     const e = new Element();
 
     e._id = json.id;
@@ -41,8 +49,9 @@ export class Element {
     return e;
   }
 
-  toJSON(): Record<string, unknown> {
+  toJSON(): IElement {
     return {
+      type: this.type,
       id: this._id,
       transform: this._transform.toJSON(),
     };

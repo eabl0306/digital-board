@@ -1,18 +1,20 @@
-import { Vector } from './Vector';
+import { IVector, Vector } from './Vector';
+
+export interface ITransform {
+  position: IVector;
+  rotation: number;
+  scale: number;
+}
 
 export class Transform {
   protected _position: Vector;
   protected _rotation: number;
   protected _scale: number;
 
-  constructor(
-    position: Vector = new Vector(),
-    rotation: number = 0,
-    scale: number = 1
-  ) {
-    this._position = position;
-    this._rotation = rotation;
-    this._scale = scale;
+  constructor() {
+    this._position = new Vector();
+    this._rotation = 0;
+    this._scale = 1;
   }
 
   set position(position: Vector) {
@@ -49,15 +51,7 @@ export class Transform {
     return t;
   }
 
-  static fromJSON({
-    position,
-    rotation,
-    scale,
-  }: {
-    position: Vector;
-    rotation: number;
-    scale: number;
-  }) {
+  static fromJSON({ position, rotation, scale }: ITransform) {
     const t = new Transform();
 
     t.position = Vector.fromJSON(position);
@@ -67,7 +61,7 @@ export class Transform {
     return t;
   }
 
-  toJSON() {
+  toJSON(): ITransform {
     return {
       position: this.position.toJSON(),
       rotation: this.rotation,
