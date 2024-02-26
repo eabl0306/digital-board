@@ -1,9 +1,3 @@
-export * from './Board';
-export * from './Element';
-export * from './Fill';
-export * from './Rectangle';
-export * from './Size';
-export * from './Space';
-export * from './Stroke';
-export * from './Transform';
-export * from './Vector';
+export function types() {
+  return 'index';
+}

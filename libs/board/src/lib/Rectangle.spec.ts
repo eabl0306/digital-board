@@ -67,6 +67,7 @@ describe('Rectangle class', () => {
       stroke: { color: '#0000ff', opacity: 0.3, width: 2 },
       size: { width: 600, height: 700 },
       radius: 25,
+      children: [],
     };
 
     const newRectangle = Rectangle.fromJSON(jsonData);

@@ -1,84 +1,75 @@
-import { Element } from './Element';
+import { Element, ElementType } from './Element';
 import { GameObjectState } from './GameObject';
+import { Transform } from './Transform';
 
-describe('Element', () => {
+describe('Element class', () => {
   let element: Element;
 
   beforeEach(() => {
     element = new Element();
+    element.children.push(new Element());
   });
 
-  describe('constructor and children property', () => {
-    it('initializes with an empty children array', () => {
-      expect(element.children).toEqual([]);
-    });
+  test('constructor initializes properties correctly', () => {
+    expect(element.type).toBe(ElementType.EMPTY);
+    expect(element.id).toBeTruthy();
+    expect(element.transform).toBeInstanceOf(Transform);
   });
 
-  describe('children property', () => {
-    it('sets and gets children correctly', () => {
-      const child1 = new Element();
-      const child2 = new Element();
-      element.children = [child1, child2];
-      expect(element.children).toEqual([child1, child2]);
-    });
+  test('set destroy state for element and children', () => {
+    const child = new Element();
+    const parent = new Element();
+    parent.children.push(child);
+
+    parent.setGameObjectState(GameObjectState.DESTROY);
+
+    expect(parent.getGameObjectState()).toBe(GameObjectState.DESTROY);
+    expect(child.getGameObjectState()).toBe(GameObjectState.DESTROY);
   });
 
-  describe('setGameObjectState and getGameObjectState methods', () => {
-    it('sets and gets the game object state correctly', () => {
-      element.setGameObjectState(GameObjectState.STARTED);
-      expect(element.getGameObjectState()).toBe(GameObjectState.STARTED);
-    });
+  test('destry and destroy children', () => {
+    const child = new Element();
+    const parent = new Element();
+    parent.children.push(child);
 
-    it('sets children state to DESTROY when element state is set to DESTROY', () => {
-      const child1 = new Element();
-      const child2 = new Element();
-      jest.spyOn(child1, 'setGameObjectState');
-      jest.spyOn(child2, 'setGameObjectState');
-      element.children = [child1, child2];
+    jest.spyOn(child, 'destroy');
 
-      element.setGameObjectState(GameObjectState.DESTROY);
+    parent.destroy();
 
-      expect(child1.setGameObjectState).toHaveBeenCalledWith(
-        GameObjectState.DESTROY
-      );
-      expect(child2.setGameObjectState).toHaveBeenCalledWith(
-        GameObjectState.DESTROY
-      );
-    });
+    expect(child.destroy).toHaveBeenCalled();
+    expect(parent.children.length).toBe(0);
   });
 
-  describe('start method', () => {
-    it('should be callable without errors', () => {
-      expect(() => {
-        element.start();
-      }).not.toThrow();
-    });
+  test('from method creates a new instance from existing element', () => {
+    const existingElement = new Element();
+    existingElement.children.push(new Element());
+
+    const newElement = Element.from(existingElement);
+
+    expect(newElement.type).toBe(ElementType.EMPTY);
+    expect(newElement.id).toEqual(existingElement.id);
+    expect(newElement.transform).toEqual(existingElement.transform);
   });
 
-  describe('update method', () => {
-    it('should be callable with a delta time without errors', () => {
-      expect(() => {
-        element.update(1);
-      }).not.toThrow();
-    });
+  test('fromJSON method creates a new instance from JSON data', () => {
+    const jsonData = {
+      id: 'json-id',
+      transform: new Transform().toJSON(),
+      children: [new Element().toJSON()],
+    };
+
+    const newElement = Element.fromJSON(jsonData);
+
+    expect(newElement.type).toBe(ElementType.EMPTY);
+    expect(newElement.id).toBe('json-id');
+    expect(newElement.transform).toBeInstanceOf(Transform);
   });
 
-  describe('destroy method', () => {
-    it('should remove all children and set parent to undefined', () => {
-      const child1 = new Element();
-      const child2 = new Element();
-      element.children = [child1, child2];
+  test('toJSON method converts element to JSON', () => {
+    const jsonData = element.toJSON();
 
-      jest.spyOn(child1, 'destroy');
-      jest.spyOn(child2, 'destroy');
-
-      element.destroy();
-
-      expect(child1.destroy).toHaveBeenCalled();
-      expect(child2.destroy).toHaveBeenCalled();
-      expect(element.children).toEqual([]);
-    });
+    expect(jsonData.type).toBe(ElementType.EMPTY);
+    expect(jsonData.id).toBe(element.id);
+    expect(jsonData.transform).toEqual(element.transform.toJSON());
   });
-
-  // Additional tests should be added here once start and update methods have specific logic.
 });

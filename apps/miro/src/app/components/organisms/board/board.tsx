@@ -1,17 +1,20 @@
 import { useEffect, useRef } from 'react';
-import { Application } from 'pixi.js';
+import {
+  BoardApplication,
+  BoardGameObject as BoardComponent,
+} from '@front-monorepo/board';
 
 export function Board() {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (!ref.current) return;
-    const app = new Application({ view: ref.current, resizeTo: window });
-    const mainLoop = app.ticker.add((delta) => {});
+    const board = new BoardComponent('', '');
+    const application = new BoardApplication(window, ref.current, board);
 
-    return () => {
-      mainLoop.destroy();
-    };
+    application.run();
+
+    return () => application.stop();
   }, []);
 
   return (

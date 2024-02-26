@@ -1,3 +1,4 @@
+import { Graphics } from 'pixi.js';
 import { Element, ElementType, IElement } from './Element';
 import { Fill, IFill } from './Fill';
 import { IStroke, Stroke } from './Stroke';
@@ -13,6 +14,7 @@ export interface IRectangle extends IElement {
 
 export class Rectangle extends Element {
   public override readonly type: ElementType = ElementType.RECTANGLE;
+  public readonly graphics: Graphics = new Graphics();
 
   protected _fill: Fill;
   protected _stroke: Stroke;
