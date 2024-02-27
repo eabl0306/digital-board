@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { ITransform, Transform } from './Transform';
 import { GameObject, GameObjectManager, GameObjectState } from './GameObject';
+import { Context } from './Context';
 
 export enum ElementType {
   EMPTY = 'EMPTY',
@@ -17,6 +18,7 @@ export interface IElement {
 export class Element implements GameObject, GameObjectManager {
   public readonly type: ElementType = ElementType.EMPTY;
   protected _gameObjectState: GameObjectState = GameObjectState.START;
+  protected _ctx: Context | undefined;
 
   protected _id: string;
   protected _transform: Transform;
@@ -31,6 +33,22 @@ export class Element implements GameObject, GameObjectManager {
 
   get id(): string {
     return this._id;
+  }
+
+  set ctx(ctx: Context) {
+    for (const child of this._children) {
+      child.ctx = ctx;
+    }
+
+    this._ctx = ctx;
+  }
+
+  get ctx(): Context {
+    if (!this._ctx) {
+      throw new Error('Context not set');
+    }
+
+    return this._ctx;
   }
 
   get parent(): Element | undefined {
@@ -80,6 +98,10 @@ export class Element implements GameObject, GameObjectManager {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   update(delta: number): void {
+    // TODO: Implement
+  }
+
+  draw(): void {
     // TODO: Implement
   }
 

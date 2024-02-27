@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import {
   BoardApplication,
-  BoardGameObject as BoardComponent,
+  Board as BoardElement,
+  Rectangle,
 } from '@front-monorepo/board';
 
 export function Board() {
@@ -9,7 +10,9 @@ export function Board() {
 
   useEffect(() => {
     if (!ref.current) return;
-    const board = new BoardComponent('', '');
+    const board = new BoardElement('', '');
+    board.children.push(new Rectangle());
+
     const application = new BoardApplication(window, ref.current, board);
 
     application.run();

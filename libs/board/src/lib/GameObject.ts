@@ -14,5 +14,6 @@ export interface GameObjectManager {
 export interface GameObject {
   start(): void;
   update(delta: number): void;
+  draw(): void;
   destroy(): void;
 }

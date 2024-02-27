@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { Element, ElementType, IElement } from './Element';
 import { Rectangle } from './Rectangle';
 import { GameObject } from './GameObject';
+import { Context } from './Context';
 
 export interface IBoard {
   id: string;
@@ -13,6 +14,7 @@ export interface IBoard {
 
 export class Board implements GameObject {
   protected _id: string;
+  protected _ctx: Context | undefined;
   protected _thumbnail: string | null;
   protected _title: string;
   protected _description: string;
@@ -26,12 +28,24 @@ export class Board implements GameObject {
     this._children = [];
   }
 
-  set id(id: string) {
-    this._id = id;
-  }
-
   get id(): string {
     return this._id;
+  }
+
+  set ctx(ctx: Context) {
+    this._ctx = ctx;
+  }
+
+  /**
+   * @description Get the context
+   * @warning This should only be used inside the game object flow, when using it outside it may not exist.
+   */
+  get ctx(): Context {
+    if (!this._ctx) {
+      throw new Error('Context not set');
+    }
+
+    return this._ctx;
   }
 
   set thumbnail(thumbnail: string | null) {
@@ -82,13 +96,17 @@ export class Board implements GameObject {
     // TODO: Implement
   }
 
+  draw(): void {
+    // TODO: Implement
+  }
+
   destroy(): void {
     // TODO: Implement
   }
 
   static from(board: Board) {
     const b = new Board(board.title, board.description);
-    b.id = board.id;
+    b._id = board.id;
     b.thumbnail = board.thumbnail;
     b.children = board.children.map((e) => {
       switch (e.type) {
@@ -104,7 +122,7 @@ export class Board implements GameObject {
 
   static fromJSON(json: IBoard) {
     const b = new Board(json.title, json.description);
-    b.id = json.id;
+    b._id = json.id;
     b.thumbnail = json.thumbnail;
     b.children = json.elements.map((e) => {
       switch (e.type) {

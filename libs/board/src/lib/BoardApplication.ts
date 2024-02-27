@@ -2,6 +2,7 @@ import { Application, ICanvas, Ticker } from 'pixi.js';
 import { Board } from './Board';
 import { Element } from './Element';
 import { GameObjectState } from './GameObject';
+import { Context } from './Context';
 
 export class BoardApplication {
   private app: Application;
@@ -12,6 +13,7 @@ export class BoardApplication {
     this.app = new Application({ view: view, resizeTo: root, antialias: true });
     this.app.ticker.maxFPS = 60;
     this.board = board;
+    this.board.ctx = new Context(this.app, this.board);
   }
 
   set maxFPS(fps: number) {
@@ -25,6 +27,7 @@ export class BoardApplication {
   private runElements(delta: number, elements: Element[]) {
     for (const element of elements) {
       const state = element.getGameObjectState();
+      element.ctx = this.board.ctx;
       switch (state) {
         case GameObjectState.START:
           element.start();
@@ -32,6 +35,7 @@ export class BoardApplication {
           break;
         case GameObjectState.STARTED:
           element.update(delta);
+          element.draw();
           break;
         case GameObjectState.DESTROY:
           element.destroy();

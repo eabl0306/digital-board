@@ -62,6 +62,38 @@ export class Rectangle extends Element {
     return this._radius;
   }
 
+  override start(): void {
+    this.ctx.app.stage.addChild(this.graphics);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  override update(delta: number): void {
+    this.graphics.position.set(
+      this.transform.position.x,
+      this.transform.position.y
+    );
+    this.graphics.rotation = this.transform.rotation;
+    this.graphics.scale.set(this.transform.scale, this.transform.scale);
+  }
+
+  override draw(): void {
+    this.graphics.clear();
+    this.graphics.beginFill(this.fill.color, this.fill.opacity);
+    this.graphics.lineStyle(
+      this.stroke.width,
+      this.stroke.color,
+      this.stroke.opacity
+    );
+    this.graphics.drawRoundedRect(
+      0,
+      0,
+      this.size.width,
+      this.size.height,
+      this.radius
+    );
+    this.graphics.endFill();
+  }
+
   static override from(rectangle: Rectangle) {
     const r = new Rectangle();
 
