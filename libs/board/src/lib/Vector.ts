@@ -1,55 +1,32 @@
-export interface IVector {
-  x: number;
-  y: number;
+import { IPointData, ObservablePoint, Point } from 'pixi.js';
+
+export class Vector2D extends Point {
+  static from(v: Vector2D) {
+    return v.clone();
+  }
+
+  static fromJSON({ x, y }: IPointData) {
+    const nv = new Vector2D(x, y);
+    nv.x = x;
+    nv.y = y;
+    return nv;
+  }
+
+  toJSON(): IPointData {
+    return { x: this.x, y: this.y };
+  }
 }
 
-export class Vector {
-  protected _x: number;
-  protected _y: number;
-
-  constructor() {
-    this._x = 0;
-    this._y = 0;
+export class ObservableVector2D<T> extends ObservablePoint<T> {
+  static from<T>(v: ObservableVector2D<T>, cb: (this: T) => unknown, scope: T) {
+    return v.clone(cb, scope);
   }
 
-  set x(x: number) {
-    this._x = x;
+  static fromJSON<T>({ x, y }: IPointData, cb: (this: T) => unknown, scope: T) {
+    return new ObservableVector2D(cb, scope, x, y);
   }
 
-  get x(): number {
-    return this._x;
-  }
-
-  set y(y: number) {
-    this._y = y;
-  }
-
-  get y(): number {
-    return this._y;
-  }
-
-  static from(v: Vector) {
-    const nv = new Vector();
-    nv.x = v.x;
-    nv.y = v.y;
-    return nv;
-  }
-
-  static fromArray([x, y]: [number, number]) {
-    const nv = new Vector();
-    nv.x = x;
-    nv.y = y;
-    return nv;
-  }
-
-  static fromJSON({ x, y }: IVector) {
-    const nv = new Vector();
-    nv.x = x;
-    nv.y = y;
-    return nv;
-  }
-
-  toJSON(): IVector {
+  toJSON(): IPointData {
     return { x: this.x, y: this.y };
   }
 }

@@ -56,10 +56,15 @@ export class BoardApplication {
   }
 
   run() {
+    if (!this.app.view.addEventListener) {
+      throw new Error('Cannot add event listener to the view');
+    }
+
     this.board.start();
 
     this.mainLoop = this.app.ticker.add((delta) => {
       this.board.update(delta);
+      this.board.draw();
       this.runElements(delta, this.board.children);
     });
   }

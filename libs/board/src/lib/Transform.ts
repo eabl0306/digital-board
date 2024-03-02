@@ -1,52 +1,18 @@
-import { IVector, Vector } from './Vector';
+import { IPointData, Transform as PixiTransform } from 'pixi.js';
 
 export interface ITransform {
-  position: IVector;
+  position: IPointData;
   rotation: number;
-  scale: number;
+  scale: IPointData;
 }
 
-export class Transform {
-  protected _position: Vector;
-  protected _rotation: number;
-  protected _scale: number;
-
-  constructor() {
-    this._position = new Vector();
-    this._rotation = 0;
-    this._scale = 1;
-  }
-
-  set position(position: Vector) {
-    this._position = position;
-  }
-
-  get position(): Vector {
-    return this._position;
-  }
-
-  set rotation(rotation: number) {
-    this._rotation = rotation;
-  }
-
-  get rotation(): number {
-    return this._rotation;
-  }
-
-  set scale(scale: number) {
-    this._scale = scale;
-  }
-
-  get scale(): number {
-    return this._scale;
-  }
-
+export class Transform extends PixiTransform {
   static from(transform: Transform) {
     const t = new Transform();
 
-    t.position = Vector.from(transform.position);
+    t.position.copyFrom(transform.position);
+    t.scale.copyFrom(transform.scale);
     t.rotation = transform.rotation;
-    t.scale = transform.scale;
 
     return t;
   }
@@ -54,18 +20,18 @@ export class Transform {
   static fromJSON({ position, rotation, scale }: ITransform) {
     const t = new Transform();
 
-    t.position = Vector.fromJSON(position);
+    t.position.copyFrom(position);
+    t.scale.copyFrom(scale);
     t.rotation = rotation;
-    t.scale = scale;
 
     return t;
   }
 
   toJSON(): ITransform {
     return {
-      position: this.position.toJSON(),
+      position: { x: this.position.x, y: this.position.y },
+      scale: { x: this.scale.x, y: this.scale.y },
       rotation: this.rotation,
-      scale: this.scale,
     };
   }
 }

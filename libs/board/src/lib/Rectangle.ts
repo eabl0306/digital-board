@@ -3,7 +3,6 @@ import { Element, ElementType, IElement } from './Element';
 import { Fill, IFill } from './Fill';
 import { IStroke, Stroke } from './Stroke';
 import { ISize, Size } from './Size';
-import { Transform } from './Transform';
 
 export interface IRectangle extends IElement {
   fill: IFill;
@@ -68,12 +67,15 @@ export class Rectangle extends Element {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override update(delta: number): void {
+    this.transform.position.x = this.ctx.localUser.pointer.x;
+    this.transform.position.y = this.ctx.localUser.pointer.y;
+
     this.graphics.position.set(
       this.transform.position.x,
       this.transform.position.y
     );
     this.graphics.rotation = this.transform.rotation;
-    this.graphics.scale.set(this.transform.scale, this.transform.scale);
+    this.graphics.scale.set(this.transform.scale.x, this.transform.scale.y);
   }
 
   override draw(): void {
@@ -94,11 +96,21 @@ export class Rectangle extends Element {
     this.graphics.endFill();
   }
 
+  onpointermove(event: PointerEvent): void {
+    console.log('pointer move', event);
+  }
+
   static override from(rectangle: Rectangle) {
     const r = new Rectangle();
 
-    r._id = rectangle.id;
-    r._transform = Transform.from(rectangle.transform);
+    r.id = rectangle.id;
+    r.setTransform(
+      rectangle.transform.position.x,
+      rectangle.transform.position.y,
+      rectangle.transform.scale.x,
+      rectangle.transform.scale.y,
+      rectangle.transform.rotation
+    );
     r.fill = Fill.from(rectangle.fill);
     r.stroke = Stroke.from(rectangle.stroke);
     r.size = Size.from(rectangle.size);
@@ -117,8 +129,14 @@ export class Rectangle extends Element {
   }: IRectangle) {
     const r = new Rectangle();
 
-    r._id = id;
-    r._transform = Transform.fromJSON(transform);
+    r.id = id;
+    r.setTransform(
+      transform.position.x,
+      transform.position.y,
+      transform.scale.x,
+      transform.scale.y,
+      transform.rotation
+    );
     r.fill = Fill.fromJSON(fill);
     r.stroke = Stroke.fromJSON(stroke);
     r.size = Size.fromJSON(size);
