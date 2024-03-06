@@ -5,15 +5,19 @@ import { GameObjectState } from './GameObject';
 import { Context } from './Context';
 
 export class BoardApplication {
-  private app: Application;
   private mainLoop: Ticker | undefined;
+
+  private app: Application;
+  private ctx: Context;
   private board: Board;
 
   constructor(root: Window | HTMLElement, view: ICanvas, board: Board) {
     this.app = new Application({ view: view, resizeTo: root, antialias: true });
+    this.ctx = new Context(this.app);
+
     this.app.ticker.maxFPS = 60;
+    this.app.stage.addChild(board);
     this.board = board;
-    this.board.ctx = new Context(this.app, this.board);
   }
 
   set maxFPS(fps: number) {
@@ -27,7 +31,6 @@ export class BoardApplication {
   private runElements(delta: number, elements: Element[]) {
     for (const element of elements) {
       const state = element.getGameObjectState();
-      element.ctx = this.board.ctx;
       switch (state) {
         case GameObjectState.START:
           element.start();
@@ -51,7 +54,10 @@ export class BoardApplication {
 
       if (state == GameObjectState.INACTIVE) continue;
 
-      this.runElements(delta, element.children);
+      this.runElements(
+        delta,
+        element.children.filter((e) => e.isBoardElement)
+      );
     }
   }
 
@@ -60,18 +66,24 @@ export class BoardApplication {
       throw new Error('Cannot add event listener to the view');
     }
 
+    this.ctx.init();
     this.board.start();
 
     this.mainLoop = this.app.ticker.add((delta) => {
+      this.ctx.update(delta);
       this.board.update(delta);
       this.board.draw();
-      this.runElements(delta, this.board.children);
+      this.runElements(
+        delta,
+        this.board.children.filter((e) => e.isBoardElement)
+      );
     });
   }
 
   stop() {
     if (!this.mainLoop) throw new Error('Main loop is not running');
 
+    this.ctx.destroy();
     this.board.destroy();
     this.mainLoop.stop();
   }
