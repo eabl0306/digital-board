@@ -8,6 +8,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "allowJs": true
   },
   "files": [],
   "include": [],

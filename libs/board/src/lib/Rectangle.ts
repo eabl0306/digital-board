@@ -3,6 +3,8 @@ import { Element, ElementType, IElement } from './Element';
 import { Fill, IFill } from './Fill';
 import { IStroke, Stroke } from './Stroke';
 import { ISize, Size } from './Size';
+import { InputSystem } from './InputSystem';
+import { Context } from './Context';
 
 export interface IRectangle extends IElement {
   fill: IFill;
@@ -14,6 +16,7 @@ export interface IRectangle extends IElement {
 export class Rectangle extends Element {
   public override readonly type: ElementType = ElementType.RECTANGLE;
   public readonly graphics: Graphics = new Graphics();
+  private input: InputSystem | undefined;
 
   protected _fill: Fill;
   protected _stroke: Stroke;
@@ -26,6 +29,9 @@ export class Rectangle extends Element {
     this._stroke = new Stroke();
     this._size = new Size(100, 100);
     this._radius = 0;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.addChild(this.graphics as any);
   }
 
   set fill(fill: Fill) {
@@ -62,20 +68,12 @@ export class Rectangle extends Element {
   }
 
   override start(): void {
-    this.ctx.app.stage.addChild(this.graphics);
+    this.input = Context.getInstance().getSystem<InputSystem>('input');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override update(delta: number): void {
-    this.transform.position.x = this.ctx.localUser.pointer.x;
-    this.transform.position.y = this.ctx.localUser.pointer.y;
-
-    this.graphics.position.set(
-      this.transform.position.x,
-      this.transform.position.y
-    );
-    this.graphics.rotation = this.transform.rotation;
-    this.graphics.scale.set(this.transform.scale.x, this.transform.scale.y);
+    // TODO: Implement
   }
 
   override draw(): void {
@@ -87,17 +85,13 @@ export class Rectangle extends Element {
       this.stroke.opacity
     );
     this.graphics.drawRoundedRect(
-      0,
-      0,
+      -this.size.width / 2,
+      -this.size.height / 2,
       this.size.width,
       this.size.height,
       this.radius
     );
     this.graphics.endFill();
-  }
-
-  onpointermove(event: PointerEvent): void {
-    console.log('pointer move', event);
   }
 
   static override from(rectangle: Rectangle) {

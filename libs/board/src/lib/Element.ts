@@ -20,6 +20,7 @@ export class Element
   extends Container<Element>
   implements GameObject, GameObjectManager
 {
+  public readonly isBoardElement = true;
   public readonly type: ElementType = ElementType.EMPTY;
   protected _gameObjectState: GameObjectState = GameObjectState.START;
   protected _ctx: Context | undefined;
@@ -31,41 +32,6 @@ export class Element
     super();
     this.id = uuid();
     this.transform = new Transform();
-  }
-
-  set ctx(ctx: Context) {
-    for (const child of this.children) {
-      child.ctx = ctx;
-    }
-
-    this._ctx = ctx;
-  }
-
-  get ctx(): Context {
-    if (!this._ctx) {
-      throw new Error('Context not set');
-    }
-
-    return this._ctx;
-  }
-
-  override addChild<U extends Element[]>(...children: U): U[0] {
-    for (const child of children) {
-      child.ctx = this.ctx;
-    }
-
-    return super.addChild(...children);
-  }
-
-  override addChildAt<U extends Element>(child: U, index: number): U {
-    child.ctx = this.ctx;
-    return super.addChildAt(child, index);
-  }
-
-  override swapChildren(child: Element, child2: Element): void {
-    child.ctx = this.ctx;
-    child2.ctx = this.ctx;
-    super.swapChildren(child, child2);
   }
 
   setGameObjectState(state: GameObjectState): void {
