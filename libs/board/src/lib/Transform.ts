@@ -1,9 +1,9 @@
-import { IPointData, Transform as PixiTransform } from 'pixi.js';
+import { PointData, Transform as PixiTransform } from 'pixi.js';
 
 export interface ITransform {
-  position: IPointData;
+  position: PointData;
   rotation: number;
-  scale: IPointData;
+  scale: PointData;
 }
 
 export class Transform extends PixiTransform {

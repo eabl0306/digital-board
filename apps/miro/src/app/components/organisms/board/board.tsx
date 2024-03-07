@@ -11,13 +11,24 @@ export function Board() {
   useEffect(() => {
     if (!ref.current) return;
     const board = new BoardElement('', '');
-    board.children.push(new Rectangle());
+    const application = new BoardApplication();
 
-    const application = new BoardApplication(window, ref.current, board);
+    const rectangle1 = new Rectangle();
+    const rectangle2 = new Rectangle();
+    const rectangle3 = new Rectangle();
+    rectangle1.position.set(100, 100);
+    rectangle2.position.set(150, 0);
+    rectangle3.position.set(150, 0);
+    rectangle3.rotation = 45 * (Math.PI / 180);
+    board.addChild(rectangle1);
+    rectangle1.addChild(rectangle2);
+    rectangle2.addChild(rectangle3);
 
-    application.run();
+    const run = application.run(window, ref.current, board);
 
-    return () => application.stop();
+    return () => {
+      run.then(() => application.stop());
+    };
   }, []);
 
   return (

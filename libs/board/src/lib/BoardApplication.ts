@@ -8,16 +8,11 @@ export class BoardApplication {
   private mainLoop: Ticker | undefined;
 
   private app: Application;
-  private ctx: Context;
-  private board: Board;
+  private ctx!: Context;
+  private board!: Board;
 
-  constructor(root: Window | HTMLElement, view: ICanvas, board: Board) {
-    this.app = new Application({ view: view, resizeTo: root, antialias: true });
-    this.ctx = new Context(this.app);
-
-    this.app.ticker.maxFPS = 60;
-    this.app.stage.addChild(board);
-    this.board = board;
+  constructor() {
+    this.app = new Application();
   }
 
   set maxFPS(fps: number) {
@@ -56,26 +51,32 @@ export class BoardApplication {
 
       this.runElements(
         delta,
-        element.children.filter((e) => e.isBoardElement)
+        element.children.filter((e) => e instanceof Element) as Element[]
       );
     }
   }
 
-  run() {
-    if (!this.app.view.addEventListener) {
-      throw new Error('Cannot add event listener to the view');
-    }
+  async run(root: Window | HTMLElement, view: ICanvas, board: Board) {
+    await this.app.init({
+      resizeTo: root,
+      background: '#1099bb',
+      canvas: view,
+    });
 
+    this.board = board;
+    this.ctx = new Context(this.app);
+
+    this.app.stage.addChild(board);
     this.ctx.init();
     this.board.start();
 
     this.mainLoop = this.app.ticker.add((delta) => {
-      this.ctx.update(delta);
-      this.board.update(delta);
+      this.ctx.update(delta.deltaTime);
+      this.board.update(delta.deltaTime);
       this.board.draw();
       this.runElements(
-        delta,
-        this.board.children.filter((e) => e.isBoardElement)
+        delta.deltaTime,
+        this.board.children.filter((e) => e instanceof Element) as Element[]
       );
     });
   }

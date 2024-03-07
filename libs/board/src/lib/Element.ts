@@ -1,6 +1,5 @@
-import { Container } from 'pixi.js';
+import { Container, PointData } from 'pixi.js';
 import { v4 as uuid } from 'uuid';
-import { ITransform, Transform } from './Transform';
 import { GameObject, GameObjectManager, GameObjectState } from './GameObject';
 import { Context } from './Context';
 
@@ -12,32 +11,33 @@ export enum ElementType {
 export interface IElement {
   type: ElementType;
   id: string;
-  transform: ITransform;
+  position: PointData;
+  scale: PointData;
+  rotation: number;
   children: IElement[];
 }
 
 export class Element
-  extends Container<Element>
+  extends Container
   implements GameObject, GameObjectManager
 {
-  public readonly isBoardElement = true;
   public readonly type: ElementType = ElementType.EMPTY;
   protected _gameObjectState: GameObjectState = GameObjectState.START;
   protected _ctx: Context | undefined;
 
   public id: string;
-  public override readonly transform: Transform;
 
   constructor() {
     super();
     this.id = uuid();
-    this.transform = new Transform();
   }
 
   setGameObjectState(state: GameObjectState): void {
     if (state === GameObjectState.DESTROY) {
       for (const element of this.children) {
-        element.setGameObjectState(GameObjectState.DESTROY);
+        if (element instanceof Element) {
+          element.setGameObjectState(GameObjectState.DESTROY);
+        }
       }
     }
 
@@ -65,14 +65,10 @@ export class Element
     const e = new Element();
 
     e.id = empty.id;
-    e.setTransform(
-      empty.transform.position.x,
-      empty.transform.position.y,
-      empty.transform.scale.x,
-      empty.transform.scale.y,
-      empty.transform.rotation
-    );
-    e.addChild(...empty.children.map((c) => Element.from(c)));
+    e.position.set(empty.position.x, empty.position.y);
+    e.scale.set(empty.scale.x, empty.scale.y);
+    e.rotation = empty.rotation;
+    e.addChild(...empty.children.map((c) => Element.from(c as Element)));
 
     return e;
   }
@@ -81,14 +77,14 @@ export class Element
     const e = new Element();
 
     e.id = json.id;
-    e.setTransform(
-      json.transform.position.x,
-      json.transform.position.y,
-      json.transform.scale.x,
-      json.transform.scale.y,
-      json.transform.rotation
+    e.position.set(json.position.x, json.position.y);
+    e.scale.set(json.scale.x, json.scale.y);
+    e.rotation = json.rotation;
+    e.addChild(
+      ...json.children
+        .filter((it) => it instanceof Element)
+        .map((c) => Element.fromJSON(c))
     );
-    e.addChild(...json.children.map((c) => Element.fromJSON(c)));
 
     return e;
   }
@@ -97,8 +93,12 @@ export class Element
     return {
       type: this.type,
       id: this.id,
-      transform: this.transform.toJSON(),
-      children: this.children.map((c) => c.toJSON()),
+      position: { x: this.position.x, y: this.position.y },
+      scale: { x: this.scale.x, y: this.scale.y },
+      rotation: this.rotation,
+      children: this.children
+        .filter((it) => it instanceof Element)
+        .map((c) => (c as Element).toJSON()),
     };
   }
 }

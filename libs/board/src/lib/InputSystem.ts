@@ -136,7 +136,7 @@ export class InputSystem implements System {
    */
 
   init(): void {
-    this.eventInterval = 0.8 / this.app.ticker.maxFPS;
+    this.eventInterval = 0.8 / 120;
     this.app.stage.eventMode = 'static';
     this.app.stage.hitArea = this.app.screen;
     this.app.stage.on('pointerdown', this.onPointerDown.bind(this));

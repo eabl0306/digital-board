@@ -48,16 +48,19 @@ export class Board extends Element {
     const b = new Board(board.title, board.description);
     b.id = board.id;
     b.thumbnail = board.thumbnail;
-    b.addChild(
-      ...board.children.map((e) => {
+
+    for (const e of board.children) {
+      if (e instanceof Element) {
         switch (e.type) {
           case ElementType.RECTANGLE:
-            return Rectangle.from(e as Rectangle);
-          case ElementType.EMPTY:
-            return Element.from(e as Element);
+            b.addChild(Rectangle.from(e as Rectangle));
+            break;
+          default:
+            b.addChild(Element.from(e as Element));
+            break;
         }
-      })
-    );
+      }
+    }
 
     return b;
   }
@@ -70,9 +73,11 @@ export class Board extends Element {
       ...json.children.map((e) => {
         switch (e.type) {
           case ElementType.RECTANGLE:
-            return Rectangle.from(e as Rectangle);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return Rectangle.from(e as any as Rectangle);
           case ElementType.EMPTY:
-            return Element.from(e as Element);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return Element.from(e as any as Element);
         }
       })
     );
