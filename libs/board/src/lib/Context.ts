@@ -17,9 +17,9 @@ class UserInfo {
 export class Context {
   private static _instance: Context;
 
+  public readonly localUser: UserInfo;
   public readonly remoteUsers: UserInfo[] = [];
 
-  public readonly localUser: UserInfo;
   public readonly systems: Record<string, System> = {};
 
   constructor(public readonly app: Application) {

@@ -3,6 +3,7 @@ import { Board } from './Board';
 import { Element } from './Element';
 import { GameObjectState } from './GameObject';
 import { Context } from './Context';
+import { PhysicSystem } from './PhysicSystem';
 
 export class BoardApplication {
   private mainLoop: Ticker | undefined;
@@ -65,20 +66,21 @@ export class BoardApplication {
 
     this.board = board;
     this.ctx = new Context(this.app);
+    this.ctx.addSystem('physic', new PhysicSystem(this.app));
 
     this.app.stage.addChild(board);
     this.ctx.init();
     this.board.start();
 
     this.mainLoop = this.app.ticker.add((delta) => {
-      this.ctx.update(delta.deltaTime);
-      this.board.update(delta.deltaTime);
+      const dt = delta.deltaMS;
+      const elements = this.board.children.filter((e) => e instanceof Element);
+      this.ctx.update(dt);
+      this.board.update(dt);
       this.board.draw();
-      this.runElements(
-        delta.deltaTime,
-        this.board.children.filter((e) => e instanceof Element) as Element[]
-      );
+      this.runElements(dt, elements as Element[]);
     });
+    this.mainLoop.maxFPS = 60;
   }
 
   stop() {

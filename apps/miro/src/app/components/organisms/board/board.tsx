@@ -1,39 +1,52 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import {
   BoardApplication,
   Board as BoardElement,
   Rectangle,
+  Size,
 } from '@front-monorepo/board';
 
 export function Board() {
   const ref = useRef<HTMLCanvasElement>(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const application = useMemo(() => new BoardApplication(), []);
+  const board = useMemo(() => new BoardElement('', ''), []);
 
-  useEffect(() => {
-    if (!ref.current) return;
-    const board = new BoardElement('', '');
-    const application = new BoardApplication();
-
+  const addRectangle = useCallback(() => {
     const rectangle1 = new Rectangle();
     const rectangle2 = new Rectangle();
     const rectangle3 = new Rectangle();
-    rectangle1.position.set(100, 100);
-    rectangle2.position.set(150, 0);
-    rectangle3.position.set(150, 0);
-    rectangle3.rotation = 45 * (Math.PI / 180);
+    rectangle3.size = new Size(1000, 100);
+    rectangle1.moveTo(500, 100);
+    rectangle2.moveTo(550, 250);
+    rectangle3.moveTo(550, 700);
+    rectangle3.setStatic(true);
     board.addChild(rectangle1);
-    rectangle1.addChild(rectangle2);
-    rectangle2.addChild(rectangle3);
-
-    const run = application.run(window, ref.current, board);
-
-    return () => {
-      run.then(() => application.stop());
-    };
-  }, []);
+    board.addChild(rectangle2);
+    board.addChild(rectangle3);
+  }, [board]);
 
   return (
     <div className="fixed top-0 left-0 w-screen h-screen">
-      <button className="absolute p-2 rounded bg-white z-40">Rect</button>
+      <div className="absolute z-40">
+        {!isRunning && (
+          <button
+            className="p-2 rounded bg-white"
+            onClick={() => {
+              if (!ref.current) return;
+              application.run(window, ref.current, board);
+              setIsRunning(true);
+            }}
+          >
+            Run
+          </button>
+        )}
+        {isRunning && (
+          <button className="p-2 rounded bg-white" onClick={addRectangle}>
+            Test
+          </button>
+        )}
+      </div>
       <canvas ref={ref} className="absolute top-0 left-0 w-full h-full z-0" />
     </div>
   );
