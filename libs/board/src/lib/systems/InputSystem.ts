@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { System } from './System';
-import { Vector2D } from './Vector';
+import { Vector2D } from '../Vector';
 
 export enum InputState {
   NONE,
@@ -52,8 +52,7 @@ export class InputSystem implements System {
     pointermove: [],
   };
 
-  private eventTimer = 0;
-  private eventInterval = 1 / 60;
+  private countFrame = 0;
 
   constructor(private app: any) {}
 
@@ -90,7 +89,7 @@ export class InputSystem implements System {
    */
 
   onPointerDown(event: any) {
-    this.eventTimer = 0;
+    this.countFrame = 0;
     switch (event.data.button) {
       case 0:
         this.state.pointer.button = InputPointerButton.LEFT;
@@ -115,7 +114,7 @@ export class InputSystem implements System {
   }
 
   onPointerUp(event: any) {
-    this.eventTimer = 0;
+    this.countFrame = 0;
     this.state.pointer.state = InputState.UP;
     this.state.pointer.positionEnd.set(
       event.data.global.x,
@@ -136,7 +135,6 @@ export class InputSystem implements System {
    */
 
   init(): void {
-    this.eventInterval = 0.8 / 120;
     this.app.stage.eventMode = 'static';
     this.app.stage.hitArea = this.app.screen;
     this.app.stage.on('pointerdown', this.onPointerDown.bind(this));
@@ -147,14 +145,17 @@ export class InputSystem implements System {
 
   update(delta: number) {
     const state = this.pointerState();
-    if (state === InputState.DOWN && this.eventTimer > this.eventInterval) {
+    
+    if (state === InputState.DOWN && this.countFrame > 0) {
       this.state.pointer.state = InputState.PRESS;
     }
-    if (state === InputState.UP && this.eventTimer > this.eventInterval) {
+
+    if (state === InputState.UP && this.countFrame > 0) {
       this.state.pointer.state = InputState.NONE;
       this.state.pointer.button = InputPointerButton.NONE;
     }
-    this.eventTimer += delta / this.app.ticker.maxFPS;
+
+    this.countFrame++;
   }
 
   destroy(): void {

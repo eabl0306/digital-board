@@ -1,5 +1,4 @@
-import { Element, ElementType, IElement } from './Element';
-import { Rectangle } from './Rectangle';
+import { Element, ElementType, IElement, Rectangle } from './elements';
 
 export interface IBoard extends IElement {
   thumbnail: string | null;
@@ -51,7 +50,7 @@ export class Board extends Element {
 
     for (const e of board.children) {
       if (e instanceof Element) {
-        switch (e.type) {
+        switch (e.getType()) {
           case ElementType.RECTANGLE:
             b.addChild(Rectangle.from(e as Rectangle));
             break;
@@ -71,6 +70,7 @@ export class Board extends Element {
     b.thumbnail = json.thumbnail;
     b.addChild(
       ...json.children.map((e) => {
+        console.log(e);
         switch (e.type) {
           case ElementType.RECTANGLE:
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

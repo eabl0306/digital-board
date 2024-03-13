@@ -1,9 +1,9 @@
 import { Application, ICanvas, Ticker } from 'pixi.js';
 import { Board } from './Board';
-import { Element } from './Element';
+import { Element } from './elements';
 import { GameObjectState } from './GameObject';
 import { Context } from './Context';
-import { PhysicSystem } from './PhysicSystem';
+import { InputSystem, PhysicSystem } from './systems';
 
 export class BoardApplication {
   private mainLoop: Ticker | undefined;
@@ -26,11 +26,11 @@ export class BoardApplication {
 
   private runElements(delta: number, elements: Element[]) {
     for (const element of elements) {
-      const state = element.getGameObjectState();
+      const state = element.getState();
       switch (state) {
         case GameObjectState.START:
           element.start();
-          element.setGameObjectState(GameObjectState.STARTED);
+          element.setState(GameObjectState.STARTED);
           break;
         case GameObjectState.STARTED:
           element.update(delta);
@@ -38,7 +38,7 @@ export class BoardApplication {
           break;
         case GameObjectState.DESTROY:
           element.destroy();
-          element.setGameObjectState(GameObjectState.DESTROYED);
+          element.setState(GameObjectState.DESTROYED);
           break;
         case GameObjectState.DESTROYED:
           if (!element.parent) this.board.removeChild(element);
@@ -66,8 +66,15 @@ export class BoardApplication {
 
     this.board = board;
     this.ctx = new Context(this.app);
+    /**
+     * Add systems
+     */
+    this.ctx.addSystem('input', new InputSystem(this.app));
     this.ctx.addSystem('physic', new PhysicSystem(this.app));
 
+    /**
+     * Init systems and board
+     */
     this.app.stage.addChild(board);
     this.ctx.init();
     this.board.start();

@@ -1,11 +1,11 @@
 import { Graphics } from 'pixi.js';
 import { Bodies, Body } from 'matter-js';
 import { Element, ElementType, IElement } from './Element';
-import { Fill, IFill } from './Fill';
-import { IStroke, Stroke } from './Stroke';
-import { ISize, Size } from './Size';
-import { Context } from './Context';
-import { PhysicSystem } from './PhysicSystem';
+import { Fill, IFill } from '../Fill';
+import { IStroke, Stroke } from '../Stroke';
+import { ISize, Size } from '../Size';
+import { Context } from '../Context';
+import { PhysicSystem } from '../systems';
 
 export interface IRectangle extends IElement {
   fill: IFill;
@@ -15,9 +15,8 @@ export interface IRectangle extends IElement {
 }
 
 export class Rectangle extends Element {
-  public override readonly type: ElementType = ElementType.RECTANGLE;
-  public readonly graphics: Graphics = new Graphics();
-  // private input: InputSystem | undefined;
+  protected override type: ElementType = ElementType.RECTANGLE;
+  protected graphics: Graphics = new Graphics();
   protected _physics: PhysicSystem | undefined;
   protected _body: Body;
 
@@ -34,7 +33,7 @@ export class Rectangle extends Element {
     this._radius = 0;
 
     this._body = Bodies.rectangle(0, 0, this.size.width, this.size.height, {
-      // isStatic: true,
+      isSensor: true,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,9 +64,9 @@ export class Rectangle extends Element {
     });
 
     const _physics = Context.getInstance().getSystem<PhysicSystem>('physic');
-    if (_physics && _physics.hasBody(this._body)) {
+    if (_physics) {
       _physics.removeBody(this._body);
-      _physics.addBody(this._body);
+      _physics.addBody(this._body, this);
     }
   }
 
@@ -105,17 +104,20 @@ export class Rectangle extends Element {
   }
 
   override start(): void {
+    super.start();
     this._physics = Context.getInstance().getSystem<PhysicSystem>('physic');
-    this._physics.addBody(this._body);
+    this._physics.addBody(this._body, this);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override update(delta: number): void {
+    super.update(delta);
     this.position.set(this._body.position.x, this._body.position.y);
     this.rotation = this._body.angle;
   }
 
   override draw(): void {
+    super.draw();
     this.graphics.clear();
     this.graphics.fill(this.fill.color, this.fill.opacity);
     this.graphics.stroke({
