@@ -1,10 +1,11 @@
 import { Graphics } from 'pixi.js';
+import { Bodies, Body, Mouse } from 'matter-js';
 import { Element, ElementType, IElement } from './Element';
-import { Fill, IFill } from './Fill';
-import { IStroke, Stroke } from './Stroke';
-import { ISize, Size } from './Size';
-import { InputPointerButton, InputState, InputSystem } from './InputSystem';
-import { Context } from './Context';
+import { Fill, IFill } from '../Fill';
+import { IStroke, Stroke } from '../Stroke';
+import { ISize, Size } from '../Size';
+import { Context } from '../Context';
+import { InputState, InputSystem, PhysicSystem } from '../systems';
 
 export interface IRectangle extends IElement {
   fill: IFill;
@@ -14,9 +15,13 @@ export interface IRectangle extends IElement {
 }
 
 export class Rectangle extends Element {
-  public override readonly type: ElementType = ElementType.RECTANGLE;
-  public readonly graphics: Graphics = new Graphics();
-  private input: InputSystem | undefined;
+  protected override type: ElementType = ElementType.RECTANGLE;
+  protected graphics: Graphics = new Graphics();
+  protected _physics: PhysicSystem | undefined;
+  protected _input: InputSystem | undefined;
+  protected _body: Body;
+  protected _drag: boolean = false;
+  protected _dragOffset: { x: number; y: number } = { x: 0, y: 0 };
 
   protected _fill: Fill;
   protected _stroke: Stroke;
@@ -29,6 +34,10 @@ export class Rectangle extends Element {
     this._stroke = new Stroke();
     this._size = new Size(100, 100);
     this._radius = 0;
+
+    this._body = Bodies.rectangle(0, 0, this.size.width, this.size.height, {
+      isSensor: true,
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.addChild(this.graphics as any);
@@ -52,6 +61,16 @@ export class Rectangle extends Element {
 
   set size(size: Size) {
     this._size = size;
+
+    this._body = Bodies.rectangle(0, 0, this.size.width, this.size.height, {
+      isStatic: this._body.isStatic,
+    });
+
+    const _physics = Context.getInstance().getSystem<PhysicSystem>('physic');
+    if (_physics) {
+      _physics.removeBody(this._body);
+      _physics.addBody(this._body, this);
+    }
   }
 
   get size(): Size {
@@ -67,28 +86,68 @@ export class Rectangle extends Element {
     return this._radius;
   }
 
+  moveTo(x: number, y: number) {
+    Body.setPosition(this._body, { x, y });
+  }
+
+  moveBy(x: number, y: number) {
+    Body.translate(this._body, { x, y });
+  }
+
+  rotateTo(angle: number) {
+    Body.setAngle(this._body, angle);
+  }
+
+  rotateBy(angle: number) {
+    Body.rotate(this._body, angle);
+  }
+
+  setStatic(isStatic: boolean) {
+    Body.setStatic(this._body, isStatic);
+  }
+
+  override onHover(mouse: Mouse): void {
+      super.onHover(mouse);
+      
+      if (!this._input) return;
+
+      if (this._input.pointerState() === InputState.DOWN) {
+        const pointerPosition = this._input.pointerPosition()!;
+        this._drag = true;
+        this._dragOffset.x = this._body.position.x - pointerPosition.x;
+        this._dragOffset.y = this._body.position.y - pointerPosition.y;
+      }
+
+      if (this._input.pointerState() === InputState.UP) {
+        this._drag = false;
+      }
+  }
+
   override start(): void {
-    this.input = Context.getInstance().getSystem<InputSystem>('input');
+    super.start();
+    this._physics = Context.getInstance().getSystem<PhysicSystem>('physic');
+    this._input = Context.getInstance().getSystem<InputSystem>('input');
+    this._physics.addBody(this._body, this);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override update(delta: number): void {
-    // TODO: Implement
-    /*
-    const context = Context.getInstance();
-    const input = context.getSystem<InputSystem>('input');
+    super.update(delta);
 
-    if (
-      input.pointerButton() === InputPointerButton.LEFT &&
-      input.pointerState() === InputState.PRESS
-    ) {
-      this.position.x = context.localUser.pointer.x;
-      this.position.y = context.localUser.pointer.y;
+    if (this._drag) {
+      const pointerPosition = this._input!.pointerPosition()!;
+      this.moveTo(
+        pointerPosition.x + this._dragOffset.x,
+        pointerPosition.y + this._dragOffset.y
+      );
     }
-    */
+
+    this.position.set(this._body.position.x, this._body.position.y);
+    this.rotation = this._body.angle;
   }
 
   override draw(): void {
+    super.draw();
     this.graphics.clear();
     this.graphics.fill(this.fill.color, this.fill.opacity);
     this.graphics.stroke({
