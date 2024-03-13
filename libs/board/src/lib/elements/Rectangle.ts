@@ -1,11 +1,11 @@
 import { Graphics } from 'pixi.js';
-import { Bodies, Body } from 'matter-js';
+import { Bodies, Body, Mouse } from 'matter-js';
 import { Element, ElementType, IElement } from './Element';
 import { Fill, IFill } from '../Fill';
 import { IStroke, Stroke } from '../Stroke';
 import { ISize, Size } from '../Size';
 import { Context } from '../Context';
-import { PhysicSystem } from '../systems';
+import { InputState, InputSystem, PhysicSystem } from '../systems';
 
 export interface IRectangle extends IElement {
   fill: IFill;
@@ -18,7 +18,10 @@ export class Rectangle extends Element {
   protected override type: ElementType = ElementType.RECTANGLE;
   protected graphics: Graphics = new Graphics();
   protected _physics: PhysicSystem | undefined;
+  protected _input: InputSystem | undefined;
   protected _body: Body;
+  protected _drag: boolean = false;
+  protected _dragOffset: { x: number; y: number } = { x: 0, y: 0 };
 
   protected _fill: Fill;
   protected _stroke: Stroke;
@@ -103,15 +106,42 @@ export class Rectangle extends Element {
     Body.setStatic(this._body, isStatic);
   }
 
+  override onHover(mouse: Mouse): void {
+      super.onHover(mouse);
+      
+      if (!this._input) return;
+
+      if (this._input.pointerState() === InputState.DOWN) {
+        const pointerPosition = this._input.pointerPosition()!;
+        this._drag = true;
+        this._dragOffset.x = this._body.position.x - pointerPosition.x;
+        this._dragOffset.y = this._body.position.y - pointerPosition.y;
+      }
+
+      if (this._input.pointerState() === InputState.UP) {
+        this._drag = false;
+      }
+  }
+
   override start(): void {
     super.start();
     this._physics = Context.getInstance().getSystem<PhysicSystem>('physic');
+    this._input = Context.getInstance().getSystem<InputSystem>('input');
     this._physics.addBody(this._body, this);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   override update(delta: number): void {
     super.update(delta);
+
+    if (this._drag) {
+      const pointerPosition = this._input!.pointerPosition()!;
+      this.moveTo(
+        pointerPosition.x + this._dragOffset.x,
+        pointerPosition.y + this._dragOffset.y
+      );
+    }
+
     this.position.set(this._body.position.x, this._body.position.y);
     this.rotation = this._body.angle;
   }

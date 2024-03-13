@@ -1,3 +1,5 @@
+import { Mouse } from "matter-js";
+
 export enum GameObjectState {
   INACTIVE,
   START,
@@ -9,6 +11,7 @@ export enum GameObjectState {
 export interface GameObjectEvent {
   onActive(): void;
   onInactive(): void;
+  onHover(mouse: Mouse): void;
   onTriggerEnter(other: any): void;
   onTriggerExit(other: any): void;
   onTriggerStay(other: any): void;

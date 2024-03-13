@@ -1,6 +1,7 @@
 import { Container, PointData } from 'pixi.js';
 import { v4 as uuid } from 'uuid';
 import { GameObject, GameObjectEvent, GameObjectState, GameObjectStateManagement } from '../GameObject';
+import { Mouse } from 'matter-js';
 
 type Script = GameObject & GameObjectEvent;
 
@@ -76,6 +77,12 @@ export class Element extends Container implements GameObject, GameObjectStateMan
   onInactive() {
     for (const script of this.scripts) {
       script.onInactive();
+    }
+  }
+
+  onHover(mouse: Mouse): void {
+    for (const script of this.scripts) {
+      script.onHover(mouse);
     }
   }
 

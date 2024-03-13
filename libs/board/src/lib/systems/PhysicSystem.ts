@@ -1,21 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Body, World, Engine, Events, ICollisionCallback } from 'matter-js';
+import { Body, World, Engine, Events, ICollisionCallback, Mouse, Query } from 'matter-js';
 import { System } from './System';
 
-const mapEvents = [
-  ['collisionStart', 'onTriggerEnter'], 
-  ['collisionActive', 'onTriggerStay'], 
-  ['collisionEnd', 'onTriggerExit']
-];
+interface ICollisionMap {
+  type: string;
+  method: string;
+  cb?: ICollisionCallback;
+}
 
 export class PhysicSystem implements System {
   private engine: Engine;
+  private mouse: Mouse;
   private elements: [Body, any][] = [];
+  private mapEvents: ICollisionMap[] = [
+    { type: 'collisionStart', method: 'onTriggerEnter' },
+    { type: 'collisionActive', method: 'onTriggerStay' },
+    { type: 'collisionEnd', method: 'onTriggerExit' },
+  ];
 
   constructor(private app: any) {
     this.engine = Engine.create({
       gravity: { scale: 0, x: 0, y: 0 },
     });
+    this.mouse = Mouse.create(this.app.canvas);
   }
 
   addBody(body: Body, element: any) {
@@ -42,9 +49,9 @@ export class PhysicSystem implements System {
    */
 
   init(): void {
-    // add mouse control
-    for (const mapEvent of mapEvents) {
-      Events.on<ICollisionCallback>(this.engine, mapEvent[0] as any, (event) => {
+    // agregamos detección de colisiones
+    for (const mapEvent of this.mapEvents) {
+      mapEvent.cb = Events.on<ICollisionCallback>(this.engine, mapEvent.type as any, (event) => {
         let pairs = event.pairs;
     
         // Recorrer las parejas de colisiones para encontrar colisiones para un cuerpo específico
@@ -56,15 +63,28 @@ export class PhysicSystem implements System {
           
           if (elementA) {
             // 'pair.bodyB' está colisionando con 'myBody'
-            elementA[1][mapEvent[1]](elementB as any);
+            elementA[1][mapEvent.method](elementB as any);
           }
           if (elementB) {
             // 'pair.bodyA' está colisionando con 'myBody'
-            elementB[1][mapEvent[1]](elementA as any);
+            elementB[1][mapEvent.method](elementA as any);
           }
         }
       });
     }
+
+    // detectamos colisiones con el mouse
+    Events.on(this.engine, 'beforeUpdate', (event) => {
+      const position = this.mouse.position;
+      const collisions = Query.point(this.engine.world.bodies, position);
+
+      for (const collision of collisions) {
+        const element = this.elements.find((e) => e[0] === collision);
+        if (!element) continue;
+
+        element[1].onHover(this.mouse);
+      }
+    })
   }
 
   update(delta: number) {
@@ -72,6 +92,11 @@ export class PhysicSystem implements System {
   }
 
   destroy(): void {
+    for (const mapEvent of this.mapEvents) {
+      if (!mapEvent.cb) continue;
+      Events.off(this.engine, mapEvent.type as any, mapEvent.cb);
+    }
+
     Engine.clear(this.engine);
   }
 }
