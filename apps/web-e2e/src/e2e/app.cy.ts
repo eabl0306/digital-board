@@ -1,6 +1,6 @@
 import { getGreeting } from '../support/app.po';
 
-describe('miro-e2e', () => {
+describe('web-e2e', () => {
   beforeEach(() => cy.visit('/'));
 
   it('should display welcome message', () => {

@@ -2,8 +2,18 @@
   "name": "@front-monorepo/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "web": "nx serve web",
+    "web:build": "nx build web",
+    "web:lint": "nx lint web",
+    "web:test": "nx test web",
+    "api": "cd apps/api && cargo run",
+    "api:lint": "cd apps/api && cargo fmt -- --check",
+    "api:test": "cd apps/api && cargo test",
+    "api:build": "cd apps/api && cargo build"
+  },
   "private": true,
+  "type": "module",
   "dependencies": {
     "luxon": "3.4.4",
     "matter-js": "0.19.0",

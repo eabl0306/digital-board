@@ -5,7 +5,7 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 
 export default defineConfig({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/apps/miro',
+  cacheDir: '../../node_modules/.vite/apps/web',
 
   server: {
     port: 4200,
@@ -26,17 +26,17 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      '@contexts': 'apps/miro/src/app/contexts/index.ts',
+      '@contexts': 'apps/web/src/app/contexts/index.ts',
     },
   },
   build: {
-    outDir: '../../dist/apps/miro',
+    outDir: '../../dist/apps/web',
     reportCompressedSize: true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
   },
-
+  // @ts-ignore
   test: {
     globals: true,
     cache: {
@@ -47,7 +47,7 @@ export default defineConfig({
 
     reporters: ['default'],
     coverage: {
-      reportsDirectory: '../../coverage/apps/miro',
+      reportsDirectory: '../../coverage/apps/web',
       provider: 'v8',
     },
   },
