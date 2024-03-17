@@ -8,6 +8,7 @@ type Script = GameObject & GameObjectEvent;
 export enum ElementType {
   EMPTY = 'EMPTY',
   RECTANGLE = 'RECTANGLE',
+  POINTER = 'POINTER',
 }
 
 export interface IElement {

@@ -70,12 +70,14 @@ export class Board extends Element {
     b.thumbnail = json.thumbnail;
     b.addChild(
       ...json.children.map((e) => {
-        console.log(e);
         switch (e.type) {
           case ElementType.RECTANGLE:
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return Rectangle.from(e as any as Rectangle);
           case ElementType.EMPTY:
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return Element.from(e as any as Element);
+          case ElementType.POINTER: // --> never used
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return Element.from(e as any as Element);
         }

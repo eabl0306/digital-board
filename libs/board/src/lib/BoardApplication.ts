@@ -3,7 +3,7 @@ import { Board } from './Board';
 import { Element } from './elements';
 import { GameObjectState } from './GameObject';
 import { Context } from './Context';
-import { InputSystem, PhysicSystem } from './systems';
+import { InputSystem, PhysicSystem, PointerSystem } from './systems';
 
 export class BoardApplication {
   private mainLoop: Ticker | undefined;
@@ -71,6 +71,7 @@ export class BoardApplication {
      */
     this.ctx.addSystem('input', new InputSystem(this.app));
     this.ctx.addSystem('physic', new PhysicSystem(this.app));
+    this.ctx.addSystem('pointer', new PointerSystem(this.app, this.board));
 
     /**
      * Init systems and board
