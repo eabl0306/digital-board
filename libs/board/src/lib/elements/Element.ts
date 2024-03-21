@@ -1,9 +1,9 @@
 import { Container, PointData } from 'pixi.js';
+import { Mouse } from 'matter-js';
 import { v4 as uuid } from 'uuid';
 import { GameObject, GameObjectEvent, GameObjectState, GameObjectStateManagement } from '../GameObject';
-import { Mouse } from 'matter-js';
-
-type Script = GameObject & GameObjectEvent;
+import { IScript } from '../scripts';
+import { getGlobalRotation } from '../utilities';
 
 export enum ElementType {
   EMPTY = 'EMPTY',
@@ -23,7 +23,7 @@ export interface IElement {
 export class Element extends Container implements GameObject, GameObjectStateManagement, GameObjectEvent {
   protected type: ElementType = ElementType.EMPTY;
   protected state: GameObjectState = GameObjectState.START;
-  protected scripts: Script[] = [];
+  protected scripts: IScript[] = [];
 
   public id: string = uuid();
 
@@ -53,20 +53,40 @@ export class Element extends Container implements GameObject, GameObjectStateMan
     return this.state;
   }
 
-  addScript(script: Script): void {
+  addScript(script: IScript): void {
     this.scripts.push(script);
   }
 
-  getScript<T extends Script>(type: new () => T): T | undefined {
+  getScript<T extends IScript>(type: new (...args: any[]) => T): T | undefined {
     return this.scripts.find((s) => s instanceof type) as T;
   }
 
-  getScripts<T extends Script>(type: new () => T): T[] {
+  getScripts<T extends IScript>(type: new () => T): T[] {
     return this.scripts.filter((s) => s instanceof type) as T[];
   }
 
-  removeScripts<T extends Script>(type: new () => T): void {
+  removeScripts<T extends IScript>(type: new () => T): void {
     this.scripts = this.scripts.filter((s) => !(s instanceof type));
+  }
+
+  setGlobalPosition(x: number, y: number): void {
+    const parentPosition = this.parent ? this.parent.getGlobalPosition() : { x: 0, y: 0 };
+    const parentRotation = this.parent ? getGlobalRotation(this.parent) : 0;
+    const dx = x - parentPosition.x;
+    const dy = y - parentPosition.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx);
+
+    this.position.set(distance * Math.cos(angle - parentRotation), distance * Math.sin(angle - parentRotation));
+  }
+
+  getGlobalRotation(): number {
+    return getGlobalRotation(this);
+  }
+
+  setGlobalRotation(rotation: number): void {
+    const parentRotation = this.parent ? getGlobalRotation(this.parent) : 0;
+    this.rotation = rotation - parentRotation;
   }
 
   onActive() {

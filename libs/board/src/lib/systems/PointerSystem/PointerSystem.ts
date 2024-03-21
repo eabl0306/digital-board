@@ -24,6 +24,7 @@ export class PointerSystem implements System {
    */
 
   init(): void {
+    /*
     const wsUri = `wss://digital-board-api.bahoque.com/ws`
 
     this.ws = new WebSocket(wsUri)
@@ -62,6 +63,7 @@ export class PointerSystem implements System {
     this.ws.onclose = () => {
       this.ws = undefined
     }
+    */
   }
 
   update(delta: number) {
