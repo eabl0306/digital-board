@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   BoardApplication,
   Board as BoardElement,
+  PhysicBody,
   Rectangle,
   Size,
 } from '@front-monorepo/board';
@@ -12,6 +13,14 @@ export function Board() {
   const application = useMemo(() => new BoardApplication(), []);
   const board = useMemo(() => new BoardElement('', ''), []);
 
+  const makeRectangle = useCallback((x: number, y: number, width: number, height: number) => {
+    const rectangle = new Rectangle();
+    rectangle.size = new Size(width, height);
+    rectangle.addScript(new PhysicBody(rectangle));
+    rectangle.getScript(PhysicBody)!.setPosition(x, y);
+    return rectangle;
+  }, [])
+
   useEffect(() => {
     if (!ref.current) return;
     if (running.current !== 'none') return;
@@ -20,16 +29,10 @@ export function Board() {
     application.run(window, ref.current, board)
       .then(() => {
         running.current = 'started';
-        const rectangle1 = new Rectangle();
-        const rectangle2 = new Rectangle();
-        const rectangle3 = new Rectangle();
-        rectangle3.size = new Size(1000, 100);
-        rectangle1.moveTo(500, 100);
-        rectangle2.moveTo(550, 250);
-        rectangle3.moveTo(550, 700);
+        const rectangle1 = makeRectangle(150, 100, 100, 100);
+        const rectangle2 = makeRectangle(300, 100, 100, 100);
         board.addChild(rectangle1);
-        board.addChild(rectangle2);
-        board.addChild(rectangle3);
+        rectangle1.addChild(rectangle2);
       });
     return () => {
       if (running.current === 'started') {

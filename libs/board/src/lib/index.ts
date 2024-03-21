@@ -1,6 +1,7 @@
 export * from './Board';
 export * from './BoardApplication';
 export * from './elements';
+export * from './scripts';
 export * from './Fill';
 export * from './Size';
 export * from './Space';
