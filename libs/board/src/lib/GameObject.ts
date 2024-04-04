@@ -11,10 +11,13 @@ export enum GameObjectState {
 export interface GameObjectEvent {
   onActive(): void;
   onInactive(): void;
-  onHover(mouse: Mouse): void;
+  onPointerMove(mouse: Mouse): void;
   onTriggerEnter(other: any): void;
   onTriggerExit(other: any): void;
   onTriggerStay(other: any): void;
+  onWsConnect(ws: WebSocket): void;
+  onWsMessage(ev: MessageEvent): void;
+  onWsClose(): void;
 }
 
 export interface GameObjectStateManagement {

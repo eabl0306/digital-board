@@ -25,7 +25,7 @@ export class Context {
     this.systems[name] = system;
   }
 
-  getSystem<T extends System>(name: string): T {
+  getSystem<T extends System>(name: string): T | undefined {
     return this.systems[name] as T;
   }
 

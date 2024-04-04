@@ -5,6 +5,7 @@ import {
   PhysicBody,
   Rectangle,
   Size,
+  SyncronizeElement,
 } from '@front-monorepo/board';
 
 export function Board() {
@@ -15,8 +16,10 @@ export function Board() {
 
   const makeRectangle = useCallback((x: number, y: number, width: number, height: number) => {
     const rectangle = new Rectangle();
+    rectangle.id = 'r' + x
     rectangle.size = new Size(width, height);
     rectangle.addScript(new PhysicBody(rectangle));
+    rectangle.addScript(new SyncronizeElement(rectangle));
     rectangle.getScript(PhysicBody)!.setPosition(x, y);
     return rectangle;
   }, [])

@@ -3,7 +3,7 @@ import { Element, ElementType, Rectangle } from "../elements";
 import { PhysicSystem } from "../systems";
 import { Script } from "./Script";
 import { Context } from '../Context';
-import { calculateRotatePosition } from '../utilities';
+import { SYSTEM_NAME, calculateRotatePosition } from '../utilities';
 
 export class PhysicBody extends Script {
   protected gameObject: Element;
@@ -15,7 +15,7 @@ export class PhysicBody extends Script {
   constructor(parent: Element) {
     super();
     this.gameObject = parent;
-    this.physics = Context.getInstance().getSystem<PhysicSystem>('physic');
+    this.physics = Context.getInstance().getSystem<PhysicSystem>(SYSTEM_NAME.PHYSIC)!;
 
     // add body to physic system
     switch (this.gameObject.getType()) {
@@ -47,8 +47,10 @@ export class PhysicBody extends Script {
     Body.setStatic(this.body, isStatic);
   }
 
-  setPosition(x: number, y: number) {
+  setPosition(x: number, y: number, affectChildren: boolean = true) {
     Body.setPosition(this.body, { x, y });
+
+    if (!affectChildren) return;
 
     for (const child of this.gameObject.children) {
       if (child instanceof Element) {
@@ -61,21 +63,10 @@ export class PhysicBody extends Script {
     }
   }
 
-  move(x: number, y: number) {
-    Body.translate(this.body, { x, y });
-
-    for (const child of this.gameObject.children) {
-      if (child instanceof Element) {
-        const script = child.getScript(PhysicBody);
-        if (script) {
-          script.move(x, y);
-        }
-      }
-    }
-  }
-
-  setAngle(angle: number) {
+  setAngle(angle: number, affectChildren: boolean = true) {
     Body.setAngle(this.body, angle);
+
+    if (!affectChildren) return;
 
     for (const child of this.gameObject.children) {
       if (child instanceof Element) {
@@ -91,8 +82,25 @@ export class PhysicBody extends Script {
     }
   }
 
-  rotate(rotate: number) {
+  move(x: number, y: number, affectChildren: boolean = true) {
+    Body.translate(this.body, { x, y });
+
+    if (!affectChildren) return;
+
+    for (const child of this.gameObject.children) {
+      if (child instanceof Element) {
+        const script = child.getScript(PhysicBody);
+        if (script) {
+          script.move(x, y);
+        }
+      }
+    }
+  }
+
+  rotate(rotate: number, affectChildren: boolean = true) {
     Body.rotate(this.body, rotate);
+
+    if (!affectChildren) return;
 
     for (const child of this.gameObject.children) {
       if (child instanceof Element) {
@@ -106,7 +114,7 @@ export class PhysicBody extends Script {
     }
   }
 
-  override onHover(mouse: Mouse): void {
+  override onPointerMove(mouse: Mouse): void {
     // set angle to mouse
     const position = this.gameObject.getGlobalPosition();
     const angle = Vector.angle(position, mouse.position);

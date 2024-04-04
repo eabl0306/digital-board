@@ -9,6 +9,28 @@ edition = "2021"
 actix = "0.13.3"
 actix-web = "4.5.1"
 actix-web-actors = "4.3.0"
+chrono = "0.4.37"
+postgres = "0.19.7"
+serde = "1.0.197"
+
+
+[dependencies.bson]
+version = "2.9.0"
+features = [
+    "chrono-0_4",
+    "uuid-1",
+]
+
+[dependencies.rusqlite]
+version = "0.31.0"
+features = [
+    "bundled",
+    "chrono",
+    "hooks",
+    "limits",
+    "time",
+    "uuid",
+]
 
 [dependencies.uuid]
 version = "1.7.0"

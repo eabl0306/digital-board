@@ -39,7 +39,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(server.clone()))
-            .service(web::resource("/").to(index))
+            .route("/", web::get().to(index))
             .route("/ws", web::get().to(ws_route))
     })
     .workers(2)

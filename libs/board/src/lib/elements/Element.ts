@@ -101,9 +101,9 @@ export class Element extends Container implements GameObject, GameObjectStateMan
     }
   }
 
-  onHover(mouse: Mouse): void {
+  onPointerMove(mouse: Mouse): void {
     for (const script of this.scripts) {
-      script.onHover(mouse);
+      script.onPointerMove(mouse);
     }
   }
 
@@ -122,6 +122,24 @@ export class Element extends Container implements GameObject, GameObjectStateMan
   onTriggerStay(other: any): void {
     for (const script of this.scripts) {
       script.onTriggerStay(other);
+    }
+  }
+
+  onWsConnect(ws: WebSocket): void {
+    for (const script of this.scripts) {
+      script.onWsConnect(ws);
+    }
+  }
+
+  onWsMessage(ev: MessageEvent): void {
+    for (const script of this.scripts) {
+      script.onWsMessage(ev);
+    }
+  }
+
+  onWsClose(): void {
+    for (const script of this.scripts) {
+      script.onWsClose();
     }
   }
 

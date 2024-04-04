@@ -3,7 +3,8 @@ import { Board } from './Board';
 import { Element } from './elements';
 import { GameObjectState } from './GameObject';
 import { Context } from './Context';
-import { InputSystem, PhysicSystem, PointerSystem } from './systems';
+import { UserSystem, SyncronizationSystem, InputSystem, PhysicSystem } from './systems';
+import { SYSTEM_NAME } from './utilities';
 
 export class BoardApplication {
   private mainLoop: Ticker | undefined;
@@ -69,9 +70,11 @@ export class BoardApplication {
     /**
      * Add systems
      */
-    this.ctx.addSystem('input', new InputSystem(this.app));
-    this.ctx.addSystem('physic', new PhysicSystem(this.app));
-    this.ctx.addSystem('pointer', new PointerSystem(this.app, this.board));
+    this.ctx.addSystem(SYSTEM_NAME.INPUT, new InputSystem(this.app));
+    this.ctx.addSystem(SYSTEM_NAME.PHYSIC, new PhysicSystem(this.app));
+    // this.ctx.addSystem('syncronization', new SyncronizationSystem('wss://digital-board-api.bahoque.com/ws'));
+    this.ctx.addSystem(SYSTEM_NAME.SYNCRONIZATION, new SyncronizationSystem('ws://localhost:8080/ws'));
+    this.ctx.addSystem(SYSTEM_NAME.USER, new UserSystem(this.board, this.ctx.getSystem(SYSTEM_NAME.SYNCRONIZATION)!));
 
     /**
      * Init systems and board
@@ -88,7 +91,7 @@ export class BoardApplication {
       this.board.draw();
       this.runElements(dt, elements as Element[]);
     });
-    this.mainLoop.maxFPS = 60;
+    this.mainLoop.maxFPS = 120;
   }
 
   stop() {

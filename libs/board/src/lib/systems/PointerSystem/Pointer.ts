@@ -1,19 +1,16 @@
-import { Graphics, Text } from "pixi.js";
+import { Sprite, Text, Assets } from "pixi.js";
 import { Element, ElementType } from "../../elements";
-import { Fill } from "../../Fill";
-import { Stroke } from "../../Stroke";
 import { Context } from "../../Context";
 import { InputSystem } from "../InputSystem";
+import { SYSTEM_NAME } from "../../utilities";
 
 
 export class Pointer extends Element {
     protected override type: ElementType = ElementType.POINTER;
     protected _input: InputSystem | undefined;
-    protected _graphics: Graphics = new Graphics();
     protected _text: Text;
-    
-    protected _fill: Fill;
-    protected _stroke: Stroke;
+    protected _sprite: Sprite | undefined;
+
     protected _isLocal: boolean = false;
     protected _radius: number = 5;
 
@@ -26,17 +23,20 @@ export class Pointer extends Element {
                 fontSize: 10,
             }
         });
-        this._fill = new Fill();
-        this._stroke = new Stroke();
 
         this._text.anchor.set(0, 1);
         this._text.position.set(5, -5);
+
+        Assets.load('/assets/cursor_pointerFlat_shadow.png').then((texture) => {
+            this._sprite = new Sprite(texture);
+            this._sprite.anchor.set(0.075, 0.075);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            this.addChild(this._sprite);
+        });
+
         this.zIndex = 1000;
 
         this.addChild(this._text);
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.addChild(this._graphics as any);
     }
 
     set text(value: string) {
@@ -53,7 +53,7 @@ export class Pointer extends Element {
 
     override start(): void {
         super.start();
-        this._input = Context.getInstance().getSystem<InputSystem>('input');
+        this._input = Context.getInstance().getSystem<InputSystem>(SYSTEM_NAME.INPUT);
     }
 
     override update(delta: number): void {
@@ -65,16 +65,10 @@ export class Pointer extends Element {
         }
     }
 
-    override draw(): void {
-        super.draw();
-        this._graphics.clear();
-        this._graphics.fill(this._fill.color, this._fill.opacity);
-        this._graphics.stroke({
-            color: this._stroke.color,
-            width: this._stroke.width,
-            alpha: this._stroke.opacity,
-        });
+    override destroy(): void {
+        super.destroy();
 
-        this._graphics.circle(0, 0, this._radius);
-      }
+        this.removeChild(this._text);
+        if (this._sprite) this.removeChild(this._sprite);
+    }
 }

@@ -49,8 +49,7 @@ pub struct WSServer {
 impl WSServer {
     pub fn new() -> WSServer {
         // default room
-        let mut rooms = HashMap::new();
-        rooms.insert("main".to_owned(), HashSet::new());
+        let rooms = HashMap::new();
 
         WSServer {
             sessions: HashMap::new(),
@@ -61,7 +60,7 @@ impl WSServer {
 
 impl WSServer {
     /// Send message to all users in the room
-    fn send_message(&self, room: &str, message: &str, skip_id: Uuid) {
+    fn send_message(&self, room: &str, message: String, skip_id: Uuid) {
         let Some(sessions) = self.rooms.get(room) else { return; };
 
         for id in sessions {
@@ -86,15 +85,14 @@ impl Handler<Connect> for WSServer {
     type Result = WSID;
 
     fn handle(&mut self, msg: Connect, _: &mut Context<Self>) -> Self::Result {
-        // notify all users in same room
-        self.send_message("main", "Someone joined", Uuid::nil());
-
         // register session with random id
         let id = Uuid::new_v4();
         self.sessions.insert(id, msg.addr);
 
         // auto join session to main room
-        self.rooms.entry("main".to_owned()).or_default().insert(id);
+        self.rooms.entry(id.to_string()).or_default().insert(id);
+
+        self.send_message(&id.to_string(), format!("cmd::user::connected {}", id.to_string()), Uuid::nil());
         
         WSID(id)
     }
@@ -128,7 +126,7 @@ impl Handler<Disconnect> for WSServer {
 
         // send message to other users
         for room in rooms {
-            self.send_message(&room, "Someone disconnected", Uuid::nil());
+            self.send_message(&room, format!("cmd::user::remove {}", msg.id.to_owned()), Uuid::nil());
         }
     }
 }
@@ -138,7 +136,7 @@ impl Handler<ClientMessage> for WSServer {
     type Result = ();
 
     fn handle(&mut self, msg: ClientMessage, _: &mut Context<Self>) {
-        self.send_message(&msg.room, msg.msg.as_str(), msg.id);
+        self.send_message(&msg.room, msg.msg, msg.id);
     }
 }
 
@@ -169,11 +167,14 @@ impl Handler<Join> for WSServer {
 
         // send message to other users
         for room in rooms {
-            self.send_message(&room, "Someone disconnected", Uuid::nil());
+            self.send_message(&room, format!("cmd::user::remove {}", id.to_owned()), Uuid::nil());
         }
 
         self.rooms.entry(room.clone()).or_default().insert(id);
 
-        self.send_message(&room, "Someone connected", id);
+        // get all users in the room
+        let users: Vec<String> = self.rooms.get(&room).unwrap().iter().map(|u| u.to_string()).collect();
+
+        self.send_message(&room, format!("cmd::user::list {}", users.join(" ")), Uuid::nil());
     }
 }
