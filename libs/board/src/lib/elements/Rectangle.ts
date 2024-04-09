@@ -1,7 +1,7 @@
 import { Graphics } from 'pixi.js';
 import { Fill, IFill } from '../Fill';
-import { IStroke, Stroke } from '../Stroke';
 import { ISize, Size } from '../Size';
+import { IStroke, Stroke } from '../Stroke';
 import { Element, ElementType, IElement } from './Element';
 
 export interface IRectangle extends IElement {

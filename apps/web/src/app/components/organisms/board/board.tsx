@@ -1,11 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   BoardApplication,
   Board as BoardElement,
-  PhysicBody,
-  Rectangle,
-  Size,
-  SyncronizeElement,
 } from '@front-monorepo/board';
 
 export function Board() {
@@ -14,29 +10,18 @@ export function Board() {
   const application = useMemo(() => new BoardApplication(), []);
   const board = useMemo(() => new BoardElement('', ''), []);
 
-  const makeRectangle = useCallback((x: number, y: number, width: number, height: number) => {
-    const rectangle = new Rectangle();
-    rectangle.id = 'r' + x
-    rectangle.size = new Size(width, height);
-    rectangle.addScript(new PhysicBody(rectangle));
-    rectangle.addScript(new SyncronizeElement(rectangle));
-    rectangle.getScript(PhysicBody)!.setPosition(x, y);
-    return rectangle;
-  }, [])
-
   useEffect(() => {
     if (!ref.current) return;
     if (running.current !== 'none') return;
 
     running.current = 'starting';
-    application.run(window, ref.current, board)
-      .then(() => {
-        running.current = 'started';
-        const rectangle1 = makeRectangle(150, 100, 100, 100);
-        const rectangle2 = makeRectangle(300, 100, 100, 100);
-        board.addChild(rectangle1);
-        rectangle1.addChild(rectangle2);
-      });
+    // window, ref.current, board
+    application.run({
+      root: window,
+      view: ref.current,
+      board,
+      systems: {}
+    }).then(() => { running.current = 'started'; });
     return () => {
       if (running.current === 'started') {
         running.current = 'none';

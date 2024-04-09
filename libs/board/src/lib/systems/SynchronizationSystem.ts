@@ -39,6 +39,7 @@ export class SyncronizationSystem implements System {
   }
 
   send(data: string) {
+    if (!this.connected) return;
     this.ws.send(data);
   }
 
@@ -69,7 +70,7 @@ export class SyncronizationSystem implements System {
     // TODO: Implement
   }
 
-  update(delta: number): void {
+  update(): void {
     //  TODO: Implement
   }
   

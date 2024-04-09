@@ -1,25 +1,25 @@
-import { Bodies, Body, Mouse, Vector } from 'matter-js';
-import { Element, ElementType, Rectangle } from "../elements";
-import { PhysicSystem } from "../systems";
-import { Script } from "./Script";
+import { Bodies, Body } from 'matter-js';
 import { Context } from '../Context';
+import { Element, Rectangle } from "../elements";
+import { PhysicSystem } from "../systems";
 import { SYSTEM_NAME, calculateRotatePosition } from '../utilities';
+import { Script } from "./Script";
 
 export class PhysicBody extends Script {
   protected gameObject: Element;
-  protected physics: PhysicSystem;
-  protected body: Body;
+  protected physics: PhysicSystem | undefined;
+  protected body: Body | undefined;
 
-  protected angleDistance: number = 0;
+  protected angleDistance = 0;
 
   constructor(parent: Element) {
     super();
     this.gameObject = parent;
-    this.physics = Context.getInstance().getSystem<PhysicSystem>(SYSTEM_NAME.PHYSIC)!;
+    this.physics = Context.getInstance().getSystem<PhysicSystem>(SYSTEM_NAME.PHYSIC);
 
-    // add body to physic system
-    switch (this.gameObject.getType()) {
-      case ElementType.RECTANGLE:
+    if (this.physics) {
+      // add body to physic system
+      if (this.gameObject.getType()) {
         const rectangle = this.gameObject as Rectangle;
         this.body = Bodies.rectangle(
           rectangle.position.x,
@@ -27,8 +27,7 @@ export class PhysicBody extends Script {
           rectangle.size.width,
           rectangle.size.height
         );
-        break;
-      default:
+      } else {
         const bounds = this.gameObject.getBounds();
         this.body = Bodies.rectangle(
           bounds.x + bounds.width / 2,
@@ -36,18 +35,21 @@ export class PhysicBody extends Script {
           bounds.width,
           bounds.height
         );
-        break;
+      }
+      this.setStatic(true);
+      this.physics.addBody(this.body, this.gameObject);
+    } else {
+      console.warn('Physic system not found');
     }
-    this.setStatic(true);
-
-    this.physics.addBody(this.body, this.gameObject);
   }
 
   setStatic(isStatic: boolean): void {
+    if (!this.body) return;
     Body.setStatic(this.body, isStatic);
   }
 
-  setPosition(x: number, y: number, affectChildren: boolean = true) {
+  setPosition(x: number, y: number, affectChildren = true) {
+    if (!this.body) return;
     Body.setPosition(this.body, { x, y });
 
     if (!affectChildren) return;
@@ -63,7 +65,8 @@ export class PhysicBody extends Script {
     }
   }
 
-  setAngle(angle: number, affectChildren: boolean = true) {
+  setAngle(angle: number, affectChildren = true) {
+    if (!this.body) return;
     Body.setAngle(this.body, angle);
 
     if (!affectChildren) return;
@@ -82,7 +85,8 @@ export class PhysicBody extends Script {
     }
   }
 
-  move(x: number, y: number, affectChildren: boolean = true) {
+  move(x: number, y: number, affectChildren = true) {
+    if (!this.body) return;
     Body.translate(this.body, { x, y });
 
     if (!affectChildren) return;
@@ -97,7 +101,8 @@ export class PhysicBody extends Script {
     }
   }
 
-  rotate(rotate: number, affectChildren: boolean = true) {
+  rotate(rotate: number, affectChildren = true) {
+    if (!this.body) return;
     Body.rotate(this.body, rotate);
 
     if (!affectChildren) return;
@@ -114,14 +119,9 @@ export class PhysicBody extends Script {
     }
   }
 
-  override onPointerMove(mouse: Mouse): void {
-    // set angle to mouse
-    const position = this.gameObject.getGlobalPosition();
-    const angle = Vector.angle(position, mouse.position);
-    this.setAngle(angle);
-  }
+  override update(): void {
+    if (!this.body) return;
 
-  override update(delta: number): void {
     this.gameObject.setGlobalPosition(this.body.position.x, this.body.position.y);
     this.gameObject.setGlobalRotation(this.body.angle);
   }

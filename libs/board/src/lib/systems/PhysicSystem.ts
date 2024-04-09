@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Body, Engine, Events, ICollisionCallback, IEventCollision, Mouse, Query, World } from 'matter-js';
 import { Application } from 'pixi.js';
-import { Body, World, Engine, Events, ICollisionCallback, Mouse, Query, IEventCollision } from 'matter-js';
 import { IScript } from '../scripts';
 import { System } from './System';
 
@@ -50,11 +50,11 @@ export class PhysicSystem implements System {
   }
 
   private onCollisionEvents(event: IEventCollision<Engine>, eventName: CollissionType) {
-    let pairs = event.pairs;
+    const pairs = event.pairs;
       
     // Recorrer las parejas de colisiones para encontrar colisiones para un cuerpo específico
     for (let i = 0, j = pairs.length; i != j; ++i) {
-      var pair = pairs[i];
+      const pair = pairs[i];
 
       const elementA = this.elements.find((e) => e[0] === pair.bodyA);
       const elementB = this.elements.find((e) => e[0] === pair.bodyB);

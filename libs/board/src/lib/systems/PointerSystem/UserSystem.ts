@@ -5,7 +5,8 @@ import { SyncronizeElement } from '../../scripts';
 import { SyncronizationSystem } from '../SynchronizationSystem';
 import { System } from '../System';
 import { Pointer } from './Pointer';
-import { SERVER_COMMANDS } from '../../utilities';
+import { SERVER_COMMANDS, SYSTEM_NAME } from '../../utilities';
+import { Context } from '../../Context';
 
 interface User {
   id: string;
@@ -14,10 +15,12 @@ interface User {
 }
 
 export class UserSystem implements System {
+  protected syncronization: SyncronizationSystem | undefined;
   protected users: User[];
   protected localPosition: PointData = { x: 0, y: 0 };
 
-  constructor(private board: Board, protected syncronization: SyncronizationSystem) {
+  constructor(private board: Board) {
+    this.syncronization = Context.getInstance().getSystem<SyncronizationSystem>(SYSTEM_NAME.SYNCRONIZATION);
     this.users = [{
       id: '',
       name: 'Local',
@@ -32,13 +35,15 @@ export class UserSystem implements System {
 
   onMessage(ev: MessageEvent) {
     if (ev.data.startsWith(SERVER_COMMANDS.USER_CONNECTED)) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, id] = ev.data.split(' ');
 
       this.users[0].id = id;
       this.users[0].pointer.id = id;
 
-      this.syncronization.send('/join test-room');
+      if (this.syncronization) this.syncronization.send('/join test-room');
     } else if (ev.data.startsWith(SERVER_COMMANDS.USER_LIST)) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, ...ids] = ev.data.split(' ');
 
       for (const id of ids) {
@@ -55,6 +60,7 @@ export class UserSystem implements System {
         }
       }
     } else if (ev.data.startsWith(SERVER_COMMANDS.USER_REMOVE)) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_, id] = ev.data.split(' ');
 
       const user = this.users.find((user) => user.id === id);
@@ -70,10 +76,11 @@ export class UserSystem implements System {
    */
 
   init(): void {
-    this.syncronization.addListener('onMessage', (ev) => this.onMessage(ev))
+    if (this.syncronization) this.syncronization.addListener('onMessage', (ev) => this.onMessage(ev))
   }
   
-  update(delta: number): void {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  update(_delta: number): void {
     // TODO: Implement update method
   }
 

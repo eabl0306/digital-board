@@ -1,10 +1,17 @@
 import { Application, ICanvas, Ticker } from 'pixi.js';
 import { Board } from './Board';
-import { Element } from './elements';
-import { GameObjectState } from './GameObject';
 import { Context } from './Context';
-import { UserSystem, SyncronizationSystem, InputSystem, PhysicSystem } from './systems';
+import { GameObjectState } from './GameObject';
+import { Element } from './elements';
+import { InputSystem, PhysicSystem, SyncronizationSystem, System, UserSystem } from './systems';
 import { SYSTEM_NAME } from './utilities';
+
+export interface RunOptions {
+  root: Window | HTMLElement, 
+  view: ICanvas, 
+  board: Board,
+  systems: { [k: string]: System }
+}
 
 export class BoardApplication {
   private mainLoop: Ticker | undefined;
@@ -58,28 +65,37 @@ export class BoardApplication {
     }
   }
 
-  async run(root: Window | HTMLElement, view: ICanvas, board: Board) {
+  async run(options: RunOptions) {
     await this.app.init({
-      resizeTo: root,
+      resizeTo: options.root,
       background: '#1099bb',
-      canvas: view,
+      canvas: options.view,
     });
 
-    this.board = board;
+    this.board = options.board;
     this.ctx = new Context(this.app);
     /**
      * Add systems
      */
-    this.ctx.addSystem(SYSTEM_NAME.INPUT, new InputSystem(this.app));
-    this.ctx.addSystem(SYSTEM_NAME.PHYSIC, new PhysicSystem(this.app));
-    // this.ctx.addSystem('syncronization', new SyncronizationSystem('wss://digital-board-api.bahoque.com/ws'));
-    this.ctx.addSystem(SYSTEM_NAME.SYNCRONIZATION, new SyncronizationSystem('ws://localhost:8080/ws'));
-    this.ctx.addSystem(SYSTEM_NAME.USER, new UserSystem(this.board, this.ctx.getSystem(SYSTEM_NAME.SYNCRONIZATION)!));
+    for (const [name, system] of Object.entries(options.systems)) {
+      this.ctx.addSystem(name, system);
+    }
+    
+    try {
+      if (!options.systems[SYSTEM_NAME.SYNCRONIZATION]) this.ctx.addSystem(SYSTEM_NAME.SYNCRONIZATION, new SyncronizationSystem('ws://localhost:8080/ws'));
+    } catch {
+      console.log('Syncronization system is not available');
+    }
+    
+    
+    if (!options.systems[SYSTEM_NAME.INPUT]) this.ctx.addSystem(SYSTEM_NAME.INPUT, new InputSystem(this.app));
+    if (!options.systems[SYSTEM_NAME.PHYSIC]) this.ctx.addSystem(SYSTEM_NAME.PHYSIC, new PhysicSystem(this.app));
+    if (!options.systems[SYSTEM_NAME.USER]) this.ctx.addSystem(SYSTEM_NAME.USER, new UserSystem(this.board));
 
     /**
      * Init systems and board
      */
-    this.app.stage.addChild(board);
+    this.app.stage.addChild(this.board);
     this.ctx.init();
     this.board.start();
 

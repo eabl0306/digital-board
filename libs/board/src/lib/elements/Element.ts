@@ -1,5 +1,5 @@
-import { Container, PointData } from 'pixi.js';
 import { Mouse } from 'matter-js';
+import { Container, PointData } from 'pixi.js';
 import { v4 as uuid } from 'uuid';
 import { GameObject, GameObjectEvent, GameObjectState, GameObjectStateManagement } from '../GameObject';
 import { IScript } from '../scripts';

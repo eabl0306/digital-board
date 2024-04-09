@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { System } from './System';
 import { Vector2D } from '../Vector';
+import { System } from './System';
 
 export enum InputState {
   NONE,
@@ -143,7 +143,7 @@ export class InputSystem implements System {
     this.app.stage.on('pointermove', this.onPointerMove.bind(this));
   }
 
-  update(delta: number) {
+  update() {
     const state = this.pointerState();
     
     if (state === InputState.DOWN && this.countFrame > 0) {

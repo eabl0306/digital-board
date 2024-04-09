@@ -8,20 +8,25 @@ import { Script } from './Script';
 
 export class SyncronizeElement extends Script {
   protected gameObject: Element;
-  protected syncronization: SyncronizationSystem;
+  protected syncronization: SyncronizationSystem | undefined;
   protected physicBody: PhysicBody | undefined;
 
-  protected lock: boolean = false;
+  protected lock = false;
   protected position: PointData = { x: 0, y: 0 };
-  protected rotation: number = 0;
+  protected rotation = 0;
 
   constructor(parent: Element) {
     super();
     this.gameObject = parent;
-    this.syncronization = Context.getInstance().getSystem<SyncronizationSystem>(SYSTEM_NAME.SYNCRONIZATION)!;
-    this.physicBody = this.gameObject.getScript(PhysicBody);
+    this.syncronization = Context.getInstance().getSystem<SyncronizationSystem>(SYSTEM_NAME.SYNCRONIZATION);
+    
+    if (this.syncronization) {
+      this.physicBody = this.gameObject.getScript(PhysicBody);
 
-    this.syncronization.addScript(this);
+      this.syncronization.addScript(this);
+    } else {
+      console.warn('SyncronizationSystem not found');
+    }
   }
 
   setPhysicBody(physicBody: PhysicBody) {
@@ -62,7 +67,9 @@ export class SyncronizeElement extends Script {
     this.lock = false;
   }
 
-  override update(delta: number): void {
+  override update(): void {
+    if (!this.syncronization) return;
+
     const position = this.gameObject.getGlobalPosition();
     const rotation = getGlobalRotation(this.gameObject);
 

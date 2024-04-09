@@ -11,8 +11,7 @@ export class Pointer extends Element {
     protected _text: Text;
     protected _sprite: Sprite | undefined;
 
-    protected _isLocal: boolean = false;
-    protected _radius: number = 5;
+    protected _isLocal = false;
 
     constructor() {
         super();
