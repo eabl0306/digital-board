@@ -18,8 +18,10 @@ export class SyncronizeElement extends Script {
   constructor(parent: Element) {
     super();
     this.gameObject = parent;
-    this.syncronization = Context.getInstance().getSystem<SyncronizationSystem>(SYSTEM_NAME.SYNCRONIZATION);
-    
+    this.syncronization = Context.getInstance().getSystem<SyncronizationSystem>(
+      SYSTEM_NAME.SYNCRONIZATION
+    );
+
     if (this.syncronization) {
       this.physicBody = this.gameObject.getScript(PhysicBody);
 
@@ -51,7 +53,6 @@ export class SyncronizeElement extends Script {
         this.gameObject.setGlobalPosition(this.position.x, this.position.y);
       }
     } else if (cmd === SERVER_COMMANDS.ELEMENT_ROTATION_UPDATE) {
-
       const [rotation] = args;
 
       this.lock = true;
@@ -77,12 +78,16 @@ export class SyncronizeElement extends Script {
       if (this.position.x !== position.x || this.position.y !== position.y) {
         this.position.x = position.x;
         this.position.y = position.y;
-        this.syncronization.send(`${SERVER_COMMANDS.ELEMENT_POSITION_UPDATE} ${this.gameObject.id} ${position.x} ${position.y}`);
+        this.syncronization.send(
+          `${SERVER_COMMANDS.ELEMENT_POSITION_UPDATE} ${this.gameObject.id} ${position.x} ${position.y}`
+        );
       }
 
       if (this.rotation !== rotation) {
         this.rotation = rotation;
-        this.syncronization.send(`${SERVER_COMMANDS.ELEMENT_ROTATION_UPDATE} ${this.gameObject.id} ${rotation}`);
+        this.syncronization.send(
+          `${SERVER_COMMANDS.ELEMENT_ROTATION_UPDATE} ${this.gameObject.id} ${rotation}`
+        );
       }
     }
   }

@@ -2,7 +2,7 @@ import { IScript } from '../scripts';
 import { System } from './System';
 
 type Listeners = {
-  onOpen: ((ws: WebSocket) => void)[]
+  onOpen: ((ws: WebSocket) => void)[];
   onMessage: ((ev: MessageEvent) => void)[];
   onClose: (() => void)[];
 };
@@ -18,7 +18,7 @@ export class SyncronizationSystem implements System {
 
   constructor(uri: string) {
     this.ws = new WebSocket(uri);
-    
+
     this.ws.onopen = () => this.onOpen();
     this.ws.onmessage = (ev) => this.onMessage(ev);
     this.ws.onclose = () => this.onClose();
@@ -34,7 +34,10 @@ export class SyncronizationSystem implements System {
     this.listeners.onClose.push(script.onWsClose.bind(script));
   }
 
-  addListener(type: 'onOpen' | 'onMessage' | 'onClose', handler: (...args: any[]) => void) {
+  addListener(
+    type: 'onOpen' | 'onMessage' | 'onClose',
+    handler: (...args: any[]) => void
+  ) {
     this.listeners[type].push(handler);
   }
 
@@ -65,7 +68,6 @@ export class SyncronizationSystem implements System {
     }
   }
 
-
   init(): void {
     // TODO: Implement
   }
@@ -73,8 +75,8 @@ export class SyncronizationSystem implements System {
   update(): void {
     //  TODO: Implement
   }
-  
+
   destroy(): void {
-    if (this.ws) this.ws.close()
+    if (this.ws) this.ws.close();
   }
 }

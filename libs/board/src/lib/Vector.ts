@@ -1,4 +1,4 @@
-import { PointData, ObservablePoint, Point, Observer } from 'pixi.js';
+import { ObservablePoint, Observer, Point, PointData } from 'pixi.js';
 
 export class Vector2D extends Point {
   static from(v: Vector2D) {

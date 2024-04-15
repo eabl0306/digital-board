@@ -145,7 +145,7 @@ export class InputSystem implements System {
 
   update() {
     const state = this.pointerState();
-    
+
     if (state === InputState.DOWN && this.countFrame > 0) {
       this.state.pointer.state = InputState.PRESS;
     }

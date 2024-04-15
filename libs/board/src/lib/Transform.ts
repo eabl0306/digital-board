@@ -1,4 +1,4 @@
-import { PointData, Transform as PixiTransform } from 'pixi.js';
+import { Transform as PixiTransform, PointData } from 'pixi.js';
 
 export interface ITransform {
   position: PointData;

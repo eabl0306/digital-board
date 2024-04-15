@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Body, Engine, Events, ICollisionCallback, IEventCollision, Mouse, Query, World } from 'matter-js';
+import {
+  Body,
+  Engine,
+  Events,
+  ICollisionCallback,
+  IEventCollision,
+  Mouse,
+  Query,
+  World,
+} from 'matter-js';
 import { Application } from 'pixi.js';
 import { IScript } from '../scripts';
 import { System } from './System';
@@ -29,13 +38,17 @@ export class PhysicSystem implements System {
 
   removeBody(body: Body) {
     const index = this.elements.findIndex((e) => e[0] === body);
-    
+
     if (index > -1) this.elements.splice(index, 1);
 
     World.remove(this.engine.world, body);
   }
 
-  private dispatchCollisionEvent(eventName: CollissionType, body1: IScript, body2: IScript) {
+  private dispatchCollisionEvent(
+    eventName: CollissionType,
+    body1: IScript,
+    body2: IScript
+  ) {
     switch (eventName) {
       case 'collisionStart':
         body1.onTriggerEnter(body2);
@@ -49,16 +62,19 @@ export class PhysicSystem implements System {
     }
   }
 
-  private onCollisionEvents(event: IEventCollision<Engine>, eventName: CollissionType) {
+  private onCollisionEvents(
+    event: IEventCollision<Engine>,
+    eventName: CollissionType
+  ) {
     const pairs = event.pairs;
-      
+
     // Recorrer las parejas de colisiones para encontrar colisiones para un cuerpo específico
     for (let i = 0, j = pairs.length; i != j; ++i) {
       const pair = pairs[i];
 
       const elementA = this.elements.find((e) => e[0] === pair.bodyA);
       const elementB = this.elements.find((e) => e[0] === pair.bodyB);
-      
+
       if (elementA) {
         // 'pair.bodyB' está colisionando con 'myBody'
         this.dispatchCollisionEvent(eventName, elementA[1], elementB![1]);
@@ -86,12 +102,24 @@ export class PhysicSystem implements System {
 
   init(): void {
     // agregamos detección de colisiones
-    for (const mapEvent of ['collisionStart', 'collisionActive', 'collisionEnd'] as CollissionType[]) {
-      this.events.push([mapEvent, Events.on<ICollisionCallback>(this.engine, mapEvent as any, (event) => this.onCollisionEvents(event, mapEvent))]);
+    for (const mapEvent of [
+      'collisionStart',
+      'collisionActive',
+      'collisionEnd',
+    ] as CollissionType[]) {
+      this.events.push([
+        mapEvent,
+        Events.on<ICollisionCallback>(this.engine, mapEvent as any, (event) =>
+          this.onCollisionEvents(event, mapEvent)
+        ),
+      ]);
     }
 
     // detectamos colisiones con el mouse
-    this.events.push(['beforeUpdate', Events.on(this.engine, 'beforeUpdate', () => this.onMouseEvent())]);
+    this.events.push([
+      'beforeUpdate',
+      Events.on(this.engine, 'beforeUpdate', () => this.onMouseEvent()),
+    ]);
   }
 
   update(delta: number) {

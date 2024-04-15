@@ -1,4 +1,4 @@
-import { Mouse } from "matter-js";
+import { Mouse } from 'matter-js';
 
 export enum GameObjectState {
   INACTIVE,

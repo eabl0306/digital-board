@@ -1,7 +1,12 @@
 import { Mouse } from 'matter-js';
 import { Container, PointData } from 'pixi.js';
 import { v4 as uuid } from 'uuid';
-import { GameObject, GameObjectEvent, GameObjectState, GameObjectStateManagement } from '../GameObject';
+import {
+  GameObject,
+  GameObjectEvent,
+  GameObjectState,
+  GameObjectStateManagement,
+} from '../GameObject';
 import { IScript } from '../scripts';
 import { getGlobalRotation } from '../utilities';
 
@@ -20,7 +25,10 @@ export interface IElement {
   children: IElement[];
 }
 
-export class Element extends Container implements GameObject, GameObjectStateManagement, GameObjectEvent {
+export class Element
+  extends Container
+  implements GameObject, GameObjectStateManagement, GameObjectEvent
+{
   protected type: ElementType = ElementType.EMPTY;
   protected state: GameObjectState = GameObjectState.START;
   protected scripts: IScript[] = [];
@@ -33,7 +41,11 @@ export class Element extends Container implements GameObject, GameObjectStateMan
 
   setState(state: GameObjectState): void {
     if (state === this.state) return;
-    if (state === GameObjectState.INACTIVE && [GameObjectState.DESTROY, GameObjectState.DESTROYED].includes(this.state)) return;
+    if (
+      state === GameObjectState.INACTIVE &&
+      [GameObjectState.DESTROY, GameObjectState.DESTROYED].includes(this.state)
+    )
+      return;
 
     if ([GameObjectState.INACTIVE, GameObjectState.DESTROY].includes(state)) {
       for (const element of this.children) {
@@ -44,7 +56,11 @@ export class Element extends Container implements GameObject, GameObjectStateMan
     }
 
     if (state === GameObjectState.INACTIVE) this.onInactive();
-    if (this.state === GameObjectState.INACTIVE && ![GameObjectState.DESTROY, GameObjectState.DESTROYED].includes(state)) this.onActive();
+    if (
+      this.state === GameObjectState.INACTIVE &&
+      ![GameObjectState.DESTROY, GameObjectState.DESTROYED].includes(state)
+    )
+      this.onActive();
 
     this.state = state;
   }
@@ -70,14 +86,19 @@ export class Element extends Container implements GameObject, GameObjectStateMan
   }
 
   setGlobalPosition(x: number, y: number): void {
-    const parentPosition = this.parent ? this.parent.getGlobalPosition() : { x: 0, y: 0 };
+    const parentPosition = this.parent
+      ? this.parent.getGlobalPosition()
+      : { x: 0, y: 0 };
     const parentRotation = this.parent ? getGlobalRotation(this.parent) : 0;
     const dx = x - parentPosition.x;
     const dy = y - parentPosition.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
     const angle = Math.atan2(dy, dx);
 
-    this.position.set(distance * Math.cos(angle - parentRotation), distance * Math.sin(angle - parentRotation));
+    this.position.set(
+      distance * Math.cos(angle - parentRotation),
+      distance * Math.sin(angle - parentRotation)
+    );
   }
 
   getGlobalRotation(): number {
@@ -176,7 +197,8 @@ export class Element extends Container implements GameObject, GameObjectStateMan
     e.position.set(empty.position.x, empty.position.y);
     e.scale.set(empty.scale.x, empty.scale.y);
     e.rotation = empty.rotation;
-    if (empty.children.length > 0) e.addChild(...empty.children.map((c) => Element.from(c as Element)));
+    if (empty.children.length > 0)
+      e.addChild(...empty.children.map((c) => Element.from(c as Element)));
 
     return e;
   }

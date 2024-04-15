@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { Mouse } from "matter-js";
-import { GameObject, GameObjectEvent } from "../GameObject";
+import { Mouse } from 'matter-js';
+import { GameObject, GameObjectEvent } from '../GameObject';
 
 export type IScript = GameObject & GameObjectEvent;
 
@@ -9,7 +9,7 @@ export abstract class Script implements IScript {
   // -------------------------------------------------------------------------
   // life cycle
   // -------------------------------------------------------------------------
-  
+
   start(): void {}
 
   update(delta: number): void {}
@@ -17,11 +17,11 @@ export abstract class Script implements IScript {
   draw(): void {}
 
   destroy(): void {}
-  
+
   onActive(): void {}
-  
+
   onInactive(): void {}
-  
+
   // -------------------------------------------------------------------------
   // Pointer events
   // -------------------------------------------------------------------------
@@ -31,11 +31,11 @@ export abstract class Script implements IScript {
   // -------------------------------------------------------------------------
   // Collision events
   // -------------------------------------------------------------------------
-  
+
   onTriggerEnter(other: any): void {}
-  
+
   onTriggerExit(other: any): void {}
-  
+
   onTriggerStay(other: any): void {}
 
   // -------------------------------------------------------------------------

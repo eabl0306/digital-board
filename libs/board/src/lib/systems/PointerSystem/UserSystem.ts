@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { PointData } from 'pixi.js';
 import { Board } from '../../Board';
+import { Context } from '../../Context';
 import { SyncronizeElement } from '../../scripts';
+import { SERVER_COMMANDS, SYSTEM_NAME } from '../../utilities';
 import { SyncronizationSystem } from '../SynchronizationSystem';
 import { System } from '../System';
 import { Pointer } from './Pointer';
-import { SERVER_COMMANDS, SYSTEM_NAME } from '../../utilities';
-import { Context } from '../../Context';
 
 interface User {
   id: string;
@@ -20,16 +20,22 @@ export class UserSystem implements System {
   protected localPosition: PointData = { x: 0, y: 0 };
 
   constructor(private board: Board) {
-    this.syncronization = Context.getInstance().getSystem<SyncronizationSystem>(SYSTEM_NAME.SYNCRONIZATION);
-    this.users = [{
-      id: '',
-      name: 'Local',
-      pointer: new Pointer(),
-    }];
+    this.syncronization = Context.getInstance().getSystem<SyncronizationSystem>(
+      SYSTEM_NAME.SYNCRONIZATION
+    );
+    this.users = [
+      {
+        id: '',
+        name: 'Local',
+        pointer: new Pointer(),
+      },
+    ];
 
     this.users[0].pointer.isLocal = true;
-    this.users[0].pointer.addScript(new SyncronizeElement(this.users[0].pointer));
-    
+    this.users[0].pointer.addScript(
+      new SyncronizeElement(this.users[0].pointer)
+    );
+
     board.addChild(this.users[0].pointer);
   }
 
@@ -76,9 +82,10 @@ export class UserSystem implements System {
    */
 
   init(): void {
-    if (this.syncronization) this.syncronization.addListener('onMessage', (ev) => this.onMessage(ev))
+    if (this.syncronization)
+      this.syncronization.addListener('onMessage', (ev) => this.onMessage(ev));
   }
-  
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   update(_delta: number): void {
     // TODO: Implement update method

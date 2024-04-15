@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef } from 'react';
 import {
   BoardApplication,
   Board as BoardElement,
 } from '@front-monorepo/board';
+import { useEffect, useMemo, useRef } from 'react';
 
 export function Board() {
   const ref = useRef<HTMLCanvasElement>(null);

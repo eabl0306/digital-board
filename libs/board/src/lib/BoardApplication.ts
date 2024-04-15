@@ -3,14 +3,20 @@ import { Board } from './Board';
 import { Context } from './Context';
 import { GameObjectState } from './GameObject';
 import { Element } from './elements';
-import { InputSystem, PhysicSystem, SyncronizationSystem, System, UserSystem } from './systems';
+import {
+  InputSystem,
+  PhysicSystem,
+  SyncronizationSystem,
+  System,
+  UserSystem,
+} from './systems';
 import { SYSTEM_NAME } from './utilities';
 
 export interface RunOptions {
-  root: Window | HTMLElement, 
-  view: ICanvas, 
-  board: Board,
-  systems: { [k: string]: System }
+  root: Window | HTMLElement;
+  view: ICanvas;
+  board: Board;
+  systems: { [k: string]: System };
 }
 
 export class BoardApplication {
@@ -80,17 +86,23 @@ export class BoardApplication {
     for (const [name, system] of Object.entries(options.systems)) {
       this.ctx.addSystem(name, system);
     }
-    
+
     try {
-      if (!options.systems[SYSTEM_NAME.SYNCRONIZATION]) this.ctx.addSystem(SYSTEM_NAME.SYNCRONIZATION, new SyncronizationSystem('ws://localhost:8080/ws'));
+      if (!options.systems[SYSTEM_NAME.SYNCRONIZATION])
+        this.ctx.addSystem(
+          SYSTEM_NAME.SYNCRONIZATION,
+          new SyncronizationSystem('ws://localhost:8080/ws')
+        );
     } catch {
       console.log('Syncronization system is not available');
     }
-    
-    
-    if (!options.systems[SYSTEM_NAME.INPUT]) this.ctx.addSystem(SYSTEM_NAME.INPUT, new InputSystem(this.app));
-    if (!options.systems[SYSTEM_NAME.PHYSIC]) this.ctx.addSystem(SYSTEM_NAME.PHYSIC, new PhysicSystem(this.app));
-    if (!options.systems[SYSTEM_NAME.USER]) this.ctx.addSystem(SYSTEM_NAME.USER, new UserSystem(this.board));
+
+    if (!options.systems[SYSTEM_NAME.INPUT])
+      this.ctx.addSystem(SYSTEM_NAME.INPUT, new InputSystem(this.app));
+    if (!options.systems[SYSTEM_NAME.PHYSIC])
+      this.ctx.addSystem(SYSTEM_NAME.PHYSIC, new PhysicSystem(this.app));
+    if (!options.systems[SYSTEM_NAME.USER])
+      this.ctx.addSystem(SYSTEM_NAME.USER, new UserSystem(this.board));
 
     /**
      * Init systems and board

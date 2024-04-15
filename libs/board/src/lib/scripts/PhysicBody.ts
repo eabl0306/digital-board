@@ -1,9 +1,9 @@
 import { Bodies, Body } from 'matter-js';
 import { Context } from '../Context';
-import { Element, Rectangle } from "../elements";
-import { PhysicSystem } from "../systems";
+import { Element, Rectangle } from '../elements';
+import { PhysicSystem } from '../systems';
 import { SYSTEM_NAME, calculateRotatePosition } from '../utilities';
-import { Script } from "./Script";
+import { Script } from './Script';
 
 export class PhysicBody extends Script {
   protected gameObject: Element;
@@ -15,7 +15,9 @@ export class PhysicBody extends Script {
   constructor(parent: Element) {
     super();
     this.gameObject = parent;
-    this.physics = Context.getInstance().getSystem<PhysicSystem>(SYSTEM_NAME.PHYSIC);
+    this.physics = Context.getInstance().getSystem<PhysicSystem>(
+      SYSTEM_NAME.PHYSIC
+    );
 
     if (this.physics) {
       // add body to physic system
@@ -76,7 +78,11 @@ export class PhysicBody extends Script {
         const script = child.getScript(PhysicBody);
         if (script) {
           const rotate = angle - script.angleDistance;
-          const position = calculateRotatePosition(this.gameObject.getGlobalPosition(), child.getGlobalPosition(), rotate);
+          const position = calculateRotatePosition(
+            this.gameObject.getGlobalPosition(),
+            child.getGlobalPosition(),
+            rotate
+          );
           script.angleDistance = angle;
           script.rotate(rotate);
           script.setPosition(position.x, position.y);
@@ -111,7 +117,11 @@ export class PhysicBody extends Script {
       if (child instanceof Element) {
         const script = child.getScript(PhysicBody);
         if (script) {
-          const position = calculateRotatePosition(this.gameObject.getGlobalPosition(), child.getGlobalPosition(), rotate);
+          const position = calculateRotatePosition(
+            this.gameObject.getGlobalPosition(),
+            child.getGlobalPosition(),
+            rotate
+          );
           script.setPosition(position.x, position.y);
           script.rotate(rotate);
         }
@@ -122,7 +132,10 @@ export class PhysicBody extends Script {
   override update(): void {
     if (!this.body) return;
 
-    this.gameObject.setGlobalPosition(this.body.position.x, this.body.position.y);
+    this.gameObject.setGlobalPosition(
+      this.body.position.x,
+      this.body.position.y
+    );
     this.gameObject.setGlobalRotation(this.body.angle);
   }
 }

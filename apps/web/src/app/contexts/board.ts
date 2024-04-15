@@ -1,19 +1,19 @@
 import { create } from 'zustand';
-import { Board, Vector } from '@front-monorepo/types';
+import { Board, Vector2D } from '@front-monorepo/board';
 
 export interface BoardState {
-  mouse: { position: Vector };
+  mouse: { position: Vector2D };
   board: null | Board;
 }
 
 export interface BoardActions {
-  setMousePosition: (position: Vector) => void;
+  setMousePosition: (position: Vector2D) => void;
   setBoard: (board: Board) => void;
 }
 
 export const useStore = create<BoardState & BoardActions>((set) => ({
-  mouse: { position: new Vector(0, 0) },
+  mouse: { position: new Vector2D(0, 0) },
   board: null,
-  setMousePosition: (position: Vector) => set({ mouse: { position } }),
+  setMousePosition: (position: Vector2D) => set({ mouse: { position } }),
   setBoard: (board: Board) => set({ board: board }),
 }));
