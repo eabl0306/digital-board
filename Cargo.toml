@@ -2,5 +2,6 @@
 resolver = "2"
 
 members = [
-    "apps/api"
+    "apps/api",
+    "apps/desktop"
 ]
